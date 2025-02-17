@@ -265,13 +265,16 @@
           </div>
 
         </div>
+        <div class="container">
           <div class="flex justify-between p-4">
             <h3 class="title text-2xl text-bold">Schedules</h3>
-            <button class="btn">See more ></button>
+            <button class="btn">See more Schedules ></button>
           </div>
           <div class="container flex gap-4 justify-around" >
             <button class="btn button basis-[calc(100%/5)]" v-for="(day, index) in days" :key="index">{{ day.title }}</button>
           </div>
+        </div>
+
       </div>
       <!-- right -->
       <div class="flex-item-right basis-[30%] p-2">
