@@ -1,5 +1,6 @@
 import { defineStore } from "pinia"
 import getAnimeGenres from "~/server/api/Jikan/GetAnimeGenres"
+import GetSchedules from "~/server/api/Jikan/GetSchedules"
 export const useJikenStore = defineStore('jikenStore',{
     state:()=>({
         GetTopAnimeData:[],
@@ -8,7 +9,9 @@ export const useJikenStore = defineStore('jikenStore',{
         recentAnimeReviews: [],
         getAnimeRequestData:[],
         getRecentWatchAnimeData: [],
-        getAnimeGenresData: []
+        getAnimeGenresData: [],
+        getRecommendationData: [],
+        getScheduleData: [],
     
     }),
     actions:{
@@ -45,7 +48,7 @@ export const useJikenStore = defineStore('jikenStore',{
                 if(data.length <= 0) {
                     throw new Error(`no data when fecthing in store: ${data}`)
                 }
-                this.getRecentWatchAnimeData = data
+                this.getRecentWatchAnimeData = data.slice(0,12)
             } catch (error) {
                 console.error('error fetching watch recent anime data from store: ', error)
             }
@@ -93,9 +96,26 @@ export const useJikenStore = defineStore('jikenStore',{
             } catch (error) {
                 console.error('error getting anime genres: ', error)
             }
+        },
+        async getAnimeRecommendations() {
+            try {
+                const data = await $fetch('/api/Jikan/getRecommendations')
+                if(!data) throw new Error(`unable to fetch recommendations on store: ${data}`)
+                this.getRecommendationData = data
+            } catch (error) {
+                console.error(error)
+            }
+        },
+        async getSchedules() {
+            try {
+                const data = await $fetch('/api/Jikan/GetSchedules')
+                if(!data) throw new Error(`unable to fetch schdule in store: ${data}`)
+                this.getScheduleData = data
+            } catch (error) {
+                console.error(error)
+            }
         }
-        
-        
+
 
         
     }

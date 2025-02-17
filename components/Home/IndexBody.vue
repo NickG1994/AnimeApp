@@ -134,25 +134,49 @@
     <!-- tables with 5 headers with 5 rows and 4 cols -->
     <div class="p-4">
       <div>
-        <div class="row justify-between flex">
+        <div class="row justify-between flex gap-4">
           <div class="col w-[calc(100%/4)]">
             <h2 class="title font-bold text-lg text-yellow-600">Top Airing </h2>
-            <div class="data card card-side" v-for="(TopAiringAnime, index) in refGetTopAnimeByAiringData" :key="TopAiringAnime.mal_id">
-              <figure class="w-[50px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
-              <div class="card-body">
-                <h3 class="title">{{ TopAiringAnime.title }}</h3>
-              <div class="subMeta flex items-center">
-                <h4>{{ TopAiringAnime.rating }}</h4>
-                <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopAiringAnime.type }}</span></h4>
-              </div>
-              </div>
 
-            </div>
+              <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="refGetTopAnimeByAiringData.length <= 0">
+              <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
+                <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
+                <div class="basis-[70%]">
+                  <div class="skeleton h-2 w-28 mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                </div>
+
+              </div>
+              </div>              
+
+              <div class="data card card-side border-b rounded-none" v-for="(TopAiringAnime, index) in refGetTopAnimeByAiringData" :key="TopAiringAnime.mal_id">
+                  <figure class="w-[50px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
+                  <div class="card-body">
+                    <h3 class="title">{{ TopAiringAnime.title }}</h3>
+                  <div class="subMeta flex items-center">
+                    <h4>{{ TopAiringAnime.rating }}</h4>
+                    <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopAiringAnime.type }}</span></h4>
+                  </div>
+                  </div>
+              </div>              
+
           </div>
           <div class="col w-[calc(100%/4)]">
-            <h2 class="title font-bold text-lg text-yellow-600">Most Popular </h2>
-            <div class="data card card-side" v-for="(TopAiringAnime, index) in refGetAnimeByPopular" :key="TopAiringAnime.mal_id">
-              <figure class="w-[50px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
+            <h2 class="title font-bold text-lg text-yellow-600">Most Popular</h2>
+            <div v-if="refGetAnimeByFavorite.length <= 0" class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4">
+              <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
+                <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
+                <div class="basis-[70%]">
+                  <div class="skeleton h-2 w-28 mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                </div>
+
+              </div>
+            </div>
+            <div v-else class="data card card-side border-b rounded-none" v-for="(TopAiringAnime, index) in refGetAnimeByFavorite" :key="TopAiringAnime.mal_id">
+              <figure class="w-[60px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
               <div class="card-body">
                 <h3 class="title">{{ TopAiringAnime.title }}</h3>
                 <div class="subMeta flex items-center">
@@ -165,8 +189,19 @@
           </div>
           <div class="col w-[calc(100%/4)]">
             <h2 class="title font-bold text-lg text-yellow-600">Most Favorite </h2>
-            <div class="data card card-side" v-for="(TopAiringAnime, index) in refGetAnimeByFavorite" :key="TopAiringAnime.mal_id">
-              <figure class="w-[50px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
+            <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="refGetAnimeByFavorite.length <= 0">
+              <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
+                <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
+                <div class="basis-[70%]">
+                  <div class="skeleton h-2 w-28 mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                </div>
+
+              </div>
+            </div>
+            <div v-else class="data card card-side border-b rounded-none" v-for="(TopAiringAnime, index) in refGetAnimeByFavorite" :key="TopAiringAnime.mal_id">
+              <figure class="w-[70px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
               <div class="card-body">
                 <h3 class="title">{{ TopAiringAnime.title }}</h3>
                 <div class="subMeta flex items-center">
@@ -179,28 +214,27 @@
           </div>
           <div class="col w-[calc(100%/4)]">
             <h2 class="title font-bold text-lg text-yellow-600"> Upcoming </h2>
-            <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)]" v-if="refAnimeByUpcoming.length <= 0">
-              <div v-for="(skeleton, index ) in 3" :key="index" class="flex w-full flex-col gap-4 basis-[calc(100%/5)]">
-                <div class="skeleton h-32 w-full"></div>
-                <div class="skeleton h-4 w-28"></div>
-                <div class="skeleton h-4 w-full"></div>
-                <div class="skeleton h-4 w-full"></div>
+            <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="refAnimeByUpcoming.length <= 0">
+              <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
+                <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
+                <div class="basis-[70%]">
+                  <div class="skeleton h-2 w-28 mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                  <div class="skeleton h-2 w-full mt-4"></div>
+                </div>
+
               </div>
             </div>
-
-            <div v-else v-for="(TopAiringAnime, index) in refAnimeByUpcoming" :key="TopAiringAnime.mal_id">
-              <div class="card card-side" >
-                <figure class="w-[50px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
-                <div class="card-body">
-                  <h3 class="title">{{ TopAiringAnime.title }}</h3>
-                  <div class="subMeta flex items-center">
-                    <h4>{{ TopAiringAnime.rating }}</h4>
-                    <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopAiringAnime.type }}</span></h4>
-                  </div>
-
+            <div v-else class="data card card-side border-b rounded-none" v-for="(AnimeByUpcoming, index) in refAnimeByUpcoming" :key="AnimeByUpcoming.mal_id">
+              <figure class="w-[70px]"><img :src="AnimeByUpcoming.images.webp.image_url"/></figure>
+              <div class="card-body">
+                <h3 class="title">{{ AnimeByUpcoming.title }}</h3>
+                <div class="subMeta flex items-center">
+                  <h4>{{ AnimeByUpcoming.rating }}</h4>
+                  <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ AnimeByUpcoming.type }}</span></h4>
                 </div>
-              </div>
 
+              </div>
             </div>
             
           </div>
@@ -208,16 +242,17 @@
         </div>
       </div>
      </div>
-
+    <!-- flex left basis-70% - right basis-30  -->
     <div class="flex">
+      <!-- left -->
       <div class="flex-item-left basis-[70%] p-2">
         <div>
           <div class="flex justify-between p-4">
             <h3 class="title text-2xl text-bold">Recent Episodes</h3>
             <button class="btn">See more ></button>
           </div>
-          <div class="flex flex-wrap gap-4 justify-around">
-            <div class="card bg-base-100 shadow-xl w-[15%]" v-for="(getRecentAnime, index) in getRecentWatchAnimeData" :key="getRecentAnime.entry.mal_id">
+          <div class="flex flex-wrap gap-4 justify-around p-4">
+            <div class="card bg-base-100 shadow-xl basis-[calc(100%/7)]" v-for="(getRecentAnime, index) in getRecentWatchAnimeData" :key="getRecentAnime.entry.mal_id">
               <figure class="h-[100%]"><img class="h-[100%]" :src="getRecentAnime.entry.images.webp.image_url"/></figure>
               <div class="card-body p-5">
                 <h3 class="title">{{ getRecentAnime.entry.title.length >= 15 ? getRecentAnime.entry.title.substring(0,15) : getRecentAnime.entry.title}} ...</h3>
@@ -230,15 +265,23 @@
           </div>
 
         </div>
-
+          <div class="flex justify-between p-4">
+            <h3 class="title text-2xl text-bold">Schedules</h3>
+            <button class="btn">See more ></button>
+          </div>
+          <div class="container flex gap-4 justify-around" >
+            <button class="btn button basis-[calc(100%/5)]" v-for="(day, index) in days" :key="index">{{ day.title }}</button>
+          </div>
       </div>
+      <!-- right -->
       <div class="flex-item-right basis-[30%] p-2">
         <div>
           <div class="genres flex p-4">
             <h3 class="title text-2xl text-bold">Genres</h3>
           </div>
-          <div class="flex flex-wrap gap-4">
-            <div class="basis-[calc(100%/4)] p-4 bg-sky-600 text-center" v-for="genre in getAnimeGenresData" :key="genre.mal_id">{{ genre.name.length >= 8? genre.name.substring(0,8) + '...' :  genre.name}}</div>
+
+          <div class="flex flex-wrap gap-4 justify-around p-4">
+            <div class="w-[calc(100%/4)] p-4 bg-sky-600 text-center" v-for="genre in getAnimeGenresData" :key="genre.mal_id">{{ genre.name.length >= 8? genre.name.substring(0,8) + '...' :  genre.name}}</div>
           </div>
         </div>
 
@@ -256,7 +299,6 @@
   const refGetTopAnimeByAiringData = ref([])
   const refGetAnimeByPopular = ref([])
   const refGetAnimeByFavorite = ref([])
-  ref
   // loading refs
   const heroLoading = ref(false)
   const isTrendingCardsLoading = ref(false)
@@ -268,18 +310,30 @@
     recentAnimeReviews,
     getRecentWatchAnimeData,
     getAnimeGenresData,
+    getRecommendationData,
+    getScheduleData,
   } = storeToRefs(jikenStore)
+
+  const days = [
+    { id: 1, title: "Monday", dayValue: "monday" },
+    { id: 2, title: "Tuesday", dayValue: "tuesday" },
+    { id: 3, title: "Wednesday", dayValue: "wednesday" },
+    { id: 4, title: "Thursday", dayValue: "thursday" },
+    { id: 5, title: "Friday", dayValue: "friday" }
+  ];
   /*------------------------------------------------- */
   /*-------------- Life Cycles Functions ------------ */
   /*------------------------------------------------- */
   onMounted(async () => {
   try {
-    
+
     await jikenStore.GetTopAnime().finally((response) =>{ heroLoading.value = true; console.log('Done!!!: ', heroLoading.value)});
     await jikenStore.GetTopAnimeByPopularity();
     await jikenStore.getRecentAnimeReviews().finally(() => {console.log('review finished loading'); isReviewCardsLoading.value = true});
     await jikenStore.getRecentWatchAnime()
     await jikenStore.getAnimeGenres()
+    //await jikenStore.getAnimeRecommendations()
+    await jikenStore.getSchedules()
 
     // Ensure the ref exists before passing it
       await DataChunk(animeDataHeroCards,null,null, 4)
@@ -295,6 +349,8 @@
       console.log('on mounted refGetAnimeByFavorite: ', refGetAnimeByFavorite.value);
       console.log('getRecentWatchAnime: ', getRecentWatchAnimeData.value)
       console.log('getAnimeGenresData: ', getAnimeGenresData.value)
+      console.log('recommendations: ', getRecommendationData.value)
+      console.log('getSchedule: ', getScheduleData.value)
   } catch (error) {
     console.error(error);
   }
@@ -356,7 +412,6 @@
       }
   };
 
-
 </script>
 
 <style>
@@ -369,5 +424,14 @@
     border-radius: 50%;
     width: 5px;
     height: 5px;
+  }
+  .list-enter-active,
+  .list-leave-active {
+    transition: all 0.5s ease;
+  }
+  .list-enter-from,
+  .list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
   }
 </style>

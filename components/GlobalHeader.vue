@@ -1,5 +1,6 @@
 <template>
-  <div class="navbar flex-content justify-between absolute inset-1 h-[77px] z-[10] pt-0 pb-0 pr-0 top-0 bg-transparent">
+  <div class="absolute pt-0 pb-0 pr-0 top-0 z-[10] w-full">
+    <div class="navbar flex-content justify-between inset-1 h-[77px] pt-0 pb-0 pr-0 top-0 right-0 left-0 bg-transparent">
     <div class="flex-none">
       <div class="drawer">
         <input id="my-drawer" type="checkbox" class="drawer-toggle" />
@@ -64,6 +65,8 @@
     </button>
   </div>
   </div>
+  </div>
+
 </template>
 
 <script lang="ts" setup>
