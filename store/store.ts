@@ -1,20 +1,23 @@
 import { defineStore } from "pinia"
-import getAnimeGenres from "~/server/api/Jikan/GetAnimeGenres"
-import GetSchedules from "~/server/api/Jikan/GetSchedules"
+import { useStorage } from '@vueuse/core';  // or wherever it's defined
+
 export const useJikenStore = defineStore('jikenStore',{
     state:()=>({
         GetTopAnimeData:[],
-        getTopAnimeByPopData: [],
         GetTopAnimeByUpcoming: [],
         recentAnimeReviews: [],
-        getAnimeRequestData:[],
         getRecentWatchAnimeData: [],
-        getAnimeGenresData: [],
+        getAnimeGenresData: typeof window !== 'undefined'? useStorage('getAnimeGenresData',[]) : [],
         getRecommendationData: [],
         getScheduleData: [],
-    
+        getTopAnimeByPopData: typeof window !== 'undefined' ? useStorage('getTopAnimeByPopData', []) : [],
+        animeDataHeroCards: typeof window !== 'undefined' ? useStorage('animeDataHeroCards', []) : [],
+        getAnimeByUpcomingData: typeof window !== 'undefined' ? useStorage('getAnimeByUpcomingData', []) : [],
+        getTopAnimeByAiringData: typeof window !== 'undefined' ? useStorage('getTopAnimeByAiringData', []) : [],
+        getAnimeByPopularData: typeof window !== 'undefined' ? useStorage('getAnimeByPopularData', []) : [],
+        getAnimeByFavoriteData: typeof window !== 'undefined' ? useStorage('getAnimeByFavoriteData', []) : [],
     }),
-    actions:{
+    actions: {
         async GetTopAnime() {
             try {
                 const data = await $fetch('/api/Jikan/GetTopAnime')
@@ -25,8 +28,14 @@ export const useJikenStore = defineStore('jikenStore',{
         },
         async GetTopAnimeByPopularity() {
             try {
+                console.log(this.getTopAnimeByPopData.length)
+                if(this.getTopAnimeByPopData.length > 0) {
+                    console.warn(`getTopAnimeByPopData is already populated in store: ${this.getTopAnimeByPopData}`); 
+                    return;
+                }
                 const data = await $fetch('/api/Jikan/GetTopAnimePopularity')
                 this.getTopAnimeByPopData = data
+                console.log('getting popular anime!!!', this.getTopAnimeByPopData)
             } catch (error) {
                console.error(error) 
             }
@@ -43,6 +52,9 @@ export const useJikenStore = defineStore('jikenStore',{
         async getRecentWatchAnime() {
             
             try {
+                if(this.getRecentWatchAnimeData.length > 0) {
+                    return 
+                }
                 // call api endpoint
                 const data = await $fetch('/api/Jikan/getWatchRecentAnime');
                 if(data.length <= 0) {
@@ -56,43 +68,99 @@ export const useJikenStore = defineStore('jikenStore',{
         },
         async getAnimeDataFilter(rating = null, filter = null, limit = null) {
             try {
-                console.log("Fetching anime data with filters...");
-                const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-                // Fetch data using only the query parameters
-                const data = await $fetch("/api/Jikan/GetTopAnimeFilter", {
-                    query: {
-                        "rating": rating,
-                        "filter": filter,
-                        "limit": limit
+
+                    
+                    if (filter === 'upcoming') {
+                        const storedData = localStorage.getItem('getAnimeByUpcomingData');
+                        if (!storedData) {
+                            const data = await $fetch("/api/Jikan/GetTopAnimeFilter", {
+                                query: { "rating": rating, "filter": filter, "limit": limit }
+                            });
+                            await delay(1000);
+                            this.getAnimeByUpcomingData = data;
+                            localStorage.setItem('getAnimeByUpcomingData', data);
+                            console.log('data fetched: ', this.getAnimeByUpcomingData)
+                        } else {
+                            this.getAnimeByUpcomingData = JSON.parse(storedData);
+                            console.log('persitant data fetched: ', JSON.parse(storedData))
+                        }
                     }
-                });
-                await delay(1000)
-                if (data) {
-                    this.getAnimeRequestData = data;
-                }
-                console.log('anime with filters data!!!', data)
         
-                return data;
+                    if (filter === 'airing') {
+                        const storedData = localStorage.getItem('getTopAnimeByAiringData');
+                        if (!storedData) {
+                            const data = await $fetch("/api/Jikan/GetTopAnimeFilter", {
+                                query: { "rating": rating, "filter": filter, "limit": limit }
+                            });
+                            await delay(1000);
+                            this.getTopAnimeByAiringData = data;
+                            localStorage.setItem('getTopAnimeByAiringData', data);
+                        } else {
+                            this.getTopAnimeByAiringData = JSON.parse(storedData);
+                        }
+                    }
+        
+                    if (filter === 'bypopularity') {
+                        const storedData = localStorage.getItem('getAnimeByPopularData');
+                        if (!storedData) {
+                            const data = await $fetch("/api/Jikan/GetTopAnimeFilter", {
+                                query: { "rating": rating, "filter": filter, "limit": limit }
+                            });
+                            await delay(1000);
+                            this.getAnimeByPopularData = data;
+                            localStorage.setItem('getAnimeByPopularData', data);
+                        } else {
+                            this.getAnimeByPopularData = JSON.parse(storedData);
+                        }
+                    }
+        
+                    if (filter === 'favorite') {
+                        const storedData = localStorage.getItem('getAnimeByFavoriteData');
+                        if (!storedData) {
+                            const data = await $fetch("/api/Jikan/GetTopAnimeFilter", {
+                                query: { "rating": rating, "filter": filter, "limit": limit }
+                            });
+                            await delay(1000);
+                            this.getAnimeByFavoriteData = data;
+                            localStorage.setItem('getAnimeByFavoriteData', data);
+                        } else {
+                            this.getAnimeByFavoriteData = JSON.parse(storedData);
+                        }
+                    }
+        
+                    if (!filter) {
+                        const storedData = localStorage.getItem('animeDataHeroCards');
+                        if (!storedData) {
+                            const data = await $fetch("/api/Jikan/GetTopAnimeFilter", {
+                                query: { "rating": rating, "filter": filter, "limit": limit }
+                            });
+                            await delay(1000);
+                            this.animeDataHeroCards = data;
+                            localStorage.setItem('animeDataHeroCards', data);
+                        } else {
+                            this.animeDataHeroCards = JSON.parse(storedData);
+                        }
+                    }
+                
+                
             } catch (error) {
                 console.error("Error in getAnimeDataFilter:", error);
             }
         },
+        
         async getAnimeGenres () {
             try {
                 const dataChunk = []
                 const dataLimit = 20
 
-                const data = await $fetch('/api/Jikan/GetAnimeGenres')
-                for(let x = 0; x <= dataLimit; x++ ) {
-                    console.error(data[x])
-                    dataChunk.push(data[x])
-                }
-
-                if(data) {
+                if(!JSON.parse(localStorage.getItem('getAnimeGenresData'))) {
+                    const data = await $fetch('/api/Jikan/GetAnimeGenres')
                     this.getAnimeGenresData = data
                 }
+                else {
+                    this.getAnimeGenresData = JSON.parse(localStorage.getItem('getAnimeGenresData'))
+                }
 
-                //this.getAnimeGenresData = data
             } catch (error) {
                 console.error('error getting anime genres: ', error)
             }
@@ -106,17 +174,17 @@ export const useJikenStore = defineStore('jikenStore',{
                 console.error(error)
             }
         },
-        async getSchedules() {
+        async getSchedules(daySelected) {
             try {
-                const data = await $fetch('/api/Jikan/GetSchedules')
+                const data = await $fetch('/api/Jikan/GetSchedules', {
+                    params: {"filter" : daySelected}
+                })
                 if(!data) throw new Error(`unable to fetch schdule in store: ${data}`)
                 this.getScheduleData = data
             } catch (error) {
                 console.error(error)
             }
         }
-
-
-        
     }
+
 })

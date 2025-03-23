@@ -7,5 +7,5 @@ export default defineNuxtConfig({
       baseURL:'https://api.jikan.moe/v4/'
     }
   },
-  modules: ['@nuxtjs/tailwindcss','@pinia/nuxt']
+  modules: ['@nuxtjs/tailwindcss','@pinia/nuxt','@vueuse/nuxt']
 })
