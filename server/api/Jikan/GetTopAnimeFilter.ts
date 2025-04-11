@@ -14,7 +14,6 @@ export default defineEventHandler(async (event) => {
         if(error) {
             throw new Error(`error getting data from api: ${error}`)
         }
-        console.log('data inside the top anime api: ')
         return data;
     } catch (error) {
         console.error("Error fetching anime data:", error);

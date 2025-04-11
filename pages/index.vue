@@ -1,5 +1,5 @@
 <template>
-    <IndexBody />
+  <IndexBody />
 </template>
 
 <script lang="ts" setup>

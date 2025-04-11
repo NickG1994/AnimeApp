@@ -1,13 +1,13 @@
 <template>
   <div id="main">
     <!-- hero section -->
-    <div v-if="animeDataHeroCards.length <= 0" class="skeleton w-full max-h-[550px] h-[550px] transition"></div>
+    <div v-if="!animeDataHeroCards || animeDataHeroCards.length == 0" class="skeleton w-full max-h-[550px] h-[550px] transition"></div>
     <div v-else class="carousel w-full max-h-[550px] h-[550px] transition">
       <div :id="`slide${index + 1}`" v-for="(animeCards, index) in animeDataHeroCards" :key="index" class="carousel-item w-full">
         <div
           class="hero relative bg-cover overflow-hidden">
-          <img class="absolute right-0 w-auto" :src="animeCards.images.webp.large_image_url" />
-          <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent shadow-[inset_600px_0px_50px_rgba(0,0,0,0.7)]"></div>
+          <img class="absolute right-0 w-[65%]" :src="animeCards.images.jpg.large_image_url" />
+          <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent shadow-[inset_600px_0px_50px_rgba(0,0,0,1)]"></div>
           <div class="hero-overlay bg-opacity-60"></div>
           <div class="hero-content text-neutral-content justify-self-start ml-8">
             <div class="max-w-md">
@@ -33,10 +33,10 @@
     </div>
 
     <!-- Trending Cards -->
-     <div  class="m-4 overflow-hidden"> 
+    <div  class="p-4"> 
       <h3 class="title text-2xl text-bold mb-4 font-bold">Trending</h3>
-      <div class="carousel overflow-x-auto flex flex-nowrap">
-        <div v-if="animeDataChunk.length <= 0" class="flex justify-between gap-6 flex-shrink-1 m-4 p-6">
+      <div class="carousel w-full flex justify-around">
+        <div v-if="!animeDataChunk || animeDataChunk.length === 0" class="flex justify-between gap-6 flex-shrink-1 m-4 p-6">
           <div v-for="(skeleton, index) in 6" :key="index" class="flex w-52 flex-col gap-4">
             <div class="skeleton h-32 w-full"></div>
             <div class="skeleton h-4 w-28"></div>
@@ -50,13 +50,13 @@
           :id="`slidcards${animeDataChunkIndex + 1}`" 
           v-for="(slides, animeDataChunkIndex) in animeDataChunk" 
           :key="animeDataChunkIndex"
-          class="flex flex-shrink-1 min-w-full gap-6 justify-between m-4 p-6" 
+          class="carousel-item min-w-full p-6 flex justify-around" 
           >
 
             <button 
               v-for="(slide, index) in slides" 
               :key="slide.mal_id"
-              class="card card-side bg-base-100 shadow-xl w-[calc(100%/7)] hover:scale-125 transition " 
+              class="card card-side flex justify-between w-auto bg-base-100 shadow-xl hover:scale-125 transition" 
             >
 
               <figure class="basis-[90%] flex-shrink-0 flex items-center justify-center">
@@ -71,10 +71,8 @@
             </button> 
 
             <div class="flex flex-col gap-4 justify-center">
-              
               <a :href="`#slidcards${animeDataChunkIndex <= 0 ? Math.abs((animeDataChunkIndex -1) * 6)  : (animeDataChunkIndex + 1) - 1 }`" class="btn flex-1">❮</a>
               <a :href="`#slidcards${(animeDataChunkIndex + 1) >= 6 ? 1 : animeDataChunkIndex + 2}`" class="btn flex-1">❯</a>
-
             </div>
 
         </div>
@@ -82,7 +80,7 @@
       </div>
 
       <!-- share site section links/buttons -->
-      <div class="m-4 flex gap-8">
+      <div class="m-4 mt-24 flex gap-8">
         <img class="w-16 rounded-full cover" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTJydzE1ZWE2YmpqZTVuYXN3czltbHV0aHZ0d2g2d2J0MWU3ZzBleSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ayMW3eqvuP00o/giphy.gif" />
         <div class="subTitle">
           <span class="color-yellow-500">Share Site</span>
@@ -97,52 +95,59 @@
         </div>
        
       </div>
-     </div>
+    </div>
 
     <!-- Comments/Reviews -->
-    <div  class="overflow-hidden">
-      <div class="flex justify-between p-4">
+    <div  class="overflow-hidden p-4">
+      <div class="flex justify-between mb-12">
         <h3 class="title text-2xl text-bold">Recent Reviews</h3>
         <button class="btn">See more ></button>
       </div>
-      <div v-if="animeDataChunkReview.length <= 0" class="skeleton h-64 w-auto m-6"></div>
-      <div v-else class="carousel overflow-hidden">
-        <div :id="`reviewCard${(index + 1)}`" class="flex flex-nowrap gap-4 w-[100vw] justify-between p-4" v-for="(cards, index) in animeDataChunkReview" :key="index">
-          <div class="card bg-base-100 shadow-xl w-[calc(100vw/6)] " v-for="(slide, reviewIndex) in cards" :key="slide.mal_id">
-            <div v-if="!isReviewCardsLoading" class="flex w-52 flex-col gap-4">
-            <div class="skeleton h-32 w-full"></div>
-            <div class="skeleton h-4 w-28"></div>
-            <div class="skeleton h-4 w-full"></div>
-            <div class="skeleton h-4 w-full"></div>
-          </div>
-          <div v-else>
-            <figure class="flex items-center">
-              <img class="w-16 rounded-full mr-6" :src="slide.user.images.webp.image_url? slide.user.images.webp.image_url : 'https://placehold.co/600x400'"/>
-              <div class="container">{{ slide.user.username  }}</div>
-            </figure>
-          
-            <div class="card-body">
-              {{ slide.review <= 150 ? slide.review : slide.review.substring(0,150) }}
+
+    <div class="flex justify-between gap-4 bg-black-900 p-6">
+      <div class="carousel flex gap-4">
+        <div 
+          :id="`reviewCard${(index + 1)}`" 
+          ref="courselCard" 
+          class="flex flex-nowrap gap-4 w-[100vw] justify-around pr-12 pl-12 basis-[95%]" 
+          v-for="(cards, index) in animeDataChunkReview" :key="index">
+            <div class="card bg-base-100 shadow-xl w-[100vw]" v-for="(slide, reviewIndex) in cards" :key="slide.mal_id">
+              <div v-if="animeDataChunkReview.length <= 0" class="flex w-52 flex-col gap-4">
+                <div class="skeleton h-32 w-full"></div>
+                <div class="skeleton h-4 w-28"></div>
+                <div class="skeleton h-4 w-full"></div>
+                <div class="skeleton h-4 w-full"></div>
+              </div>
+              <div v-else class="carousel-item flex flex-col">
+                <figure class="flex items-center">
+                  <img class="w-16 h-16 rounded-full mr-6" 
+                  :src="slide.user.images.webp.image_url? 
+                  slide.user.images.webp.image_url 
+                  : 'https://placehold.co/600x400'" />
+                  <div class="container">{{ slide.user.username  }}</div>
+                </figure>
+                <div class="card-body">
+                  {{ slide.review <= 150 ? slide.review : slide.review.substring(0,150) }}
+                </div>
+              </div>
+              </div>
             </div>
-          
-            </div>
-          </div>
-          <div class="flex flex-col gap-4 justify-center">
-            <a :href="`#reviewCard${index <= 0 ? Math.abs((index -1) * 6)  : (index + 1) - 1 }`" class="btn flex-1">❮</a>
-            <a :href="`#reviewCard${(index + 1) >= 6 ? 1 : index + 2}`" class="btn flex-1">❯</a>
-          </div>
-        </div>
-     </div>
+      </div>
+      <div class="flex flex-col gap-4 justify-center basis-[5%]">
+        <button class="btn flex-1" @click="prev">❮</button>
+        <button class="btn flex-1" @click="next">❯</button>
+      </div>
+      </div>
     </div>
 
-    <!-- tables with 5 headers with 5 rows and 4 cols -->
-    <div class="p-4">
-      <div class="row justify-between flex gap-4">
+    <div  class="overflow-hidden p-12">
+      <!-- tables with 5 headers with 5 rows and 4 cols -->
+        <div class="justify-between flex sm:flex-wrap flex-shrink-1 flex-grow-1 max-sm:flex-col gap-2">
         <!-- TOP AIRING -->
-        <div class="col w-[calc(100%/4)]">
+        <div class="col">
 
           <h2 class="title font-bold text-lg text-yellow-600">Top Airing </h2>
-          <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="getTopAnimeByAiringData.length <= 0">
+          <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="!getTopAnimeByAiringData || getTopAnimeByAiringData.length === 0">
             <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
               <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
               <div class="basis-[70%]">
@@ -152,10 +157,10 @@
               </div>
             </div>
           </div>             
-          <div class="data card card-side border-b rounded-none" v-for="(TopAiringAnime, index) in getTopAnimeByAiringData" :key="TopAiringAnime.mal_id">
-            <figure class="w-[50px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
+          <div v-else class="data card card-side border-b rounded-none" v-for="(TopAiringAnime, index) in getTopAnimeByAiringData" :key="TopAiringAnime.mal_id">
+            <figure class="w-[60px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
             <div class="card-body">
-              <h3 class="title">{{ TopAiringAnime.title.length >= 25 ? `${TopAiringAnime.title.substring(0,25)} ...` : TopAiringAnime.title  }}</h3>
+              <h3 class="title">{{ TopAiringAnime.title.length >= 21 ? `${TopAiringAnime.title.substring(0,21)} ...` : TopAiringAnime.title  }}</h3>
               <div class="subMeta flex items-center">
                 <h4>{{ TopAiringAnime.rating.length >= 10 ? TopAiringAnime.rating.split(' ')[0] : TopAiringAnime.rating }}</h4>
                 <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopAiringAnime.type }}</span></h4>
@@ -165,9 +170,9 @@
 
         </div>
         <!-- MOST POPULAR -->
-        <div class="col w-[calc(100%/4)]">
+        <div class="col ">
           <h2 class="title font-bold text-lg text-yellow-600">Most Popular</h2>
-          <div v-if="getAnimeByPopularData.length <= 0" class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4">
+          <div v-if="!getAnimeByPopularData || getAnimeByPopularData.length <= 0" class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4">
             <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
               <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
               <div class="basis-[70%]">
@@ -178,9 +183,9 @@
             </div>
           </div>
           <div v-else class="data card card-side border-b rounded-none" v-for="(TopPopAnime, index) in getAnimeByPopularData" :key="TopPopAnime.mal_id">
-              <figure class="w-[60px]"><img :src="TopPopAnime.images.webp.image_url"/></figure>
+              <figure class="w-[70px]"><img :src="TopPopAnime.images.webp.image_url"/></figure>
               <div class="card-body">
-                <h3 class="title">{{ TopPopAnime.title.length >= 25 ? `${TopPopAnime.title.substring(0,25)} ...` : TopPopAnime.title }}</h3>
+                <h3 class="title">{{ TopPopAnime.title.length >= 21 ? `${TopPopAnime.title.substring(0,21)} ...` : TopPopAnime.title }}</h3>
                 <div class="subMeta flex items-center">
                   <h4>{{ TopPopAnime.rating.length >= 10 ? TopPopAnime.rating.split(' ')[0] : TopPopAnime.rating }}</h4>
                   <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopPopAnime.type }}</span></h4>
@@ -190,9 +195,9 @@
           </div>
         </div>
         <!-- MOST FAVORITE -->
-        <div class="col w-[calc(100%/4)]">
+        <div class="col">
           <h2 class="title font-bold text-lg text-yellow-600">Most Favorite </h2>
-          <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="getAnimeByFavoriteData.length <= 0">
+          <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="!getAnimeByFavoriteData || getAnimeByFavoriteData.length === 0">
               <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
                 <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
                 <div class="basis-[70%]">
@@ -206,7 +211,7 @@
           <div v-else class="data card card-side border-b rounded-none" v-for="(TopFavoriteAnime, index) in getAnimeByFavoriteData" :key="TopFavoriteAnime.mal_id">
               <figure class="w-[70px]"><img :src="TopFavoriteAnime.images.webp.image_url"/></figure>
               <div class="card-body">
-                <h3 class="title">{{ TopFavoriteAnime.title.length >= 25 ? `${TopFavoriteAnime.title.substring(0,25)} ...` : TopFavoriteAnime.title }}</h3>
+                <h3 class="title">{{ TopFavoriteAnime.title.length >= 21 ? `${TopFavoriteAnime.title.substring(0,21)} ...` : TopFavoriteAnime.title }}</h3>
                 <div class="subMeta flex items-center">
                   <h4>{{ TopFavoriteAnime.rating.length >= 10 ? TopFavoriteAnime.rating.split(' ')[0] : TopFavoriteAnime.rating  }}</h4>
                   <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopFavoriteAnime.type }}</span></h4>
@@ -216,10 +221,9 @@
           </div>
         </div>
         <!-- UPCOMING ANIME -->
-        <div class="col w-[calc(100%/4)]">
-        
+        <div class="col">
           <h2 class="title font-bold text-lg text-yellow-600"> Upcoming </h2>
-          <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="getAnimeByUpcomingData.length <= 0">
+          <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="!getAnimeByUpcomingData || getAnimeByUpcomingData.length === 0">
             <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
                 <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
                 <div class="basis-[70%]">
@@ -233,7 +237,7 @@
           <div v-else class="data card card-side border-b rounded-none" v-for="(AnimeByUpcoming, index) in getAnimeByUpcomingData" :key="AnimeByUpcoming.mal_id">
             <figure class="w-[70px]"><img :src="AnimeByUpcoming.images.webp.image_url"/></figure>
             <div class="card-body">
-              <h3 class="title">{{ AnimeByUpcoming.title.length >= 25 ? `${AnimeByUpcoming.title.substring(0,25)} ...` : AnimeByUpcoming.title }}</h3>
+              <h3 class="title">{{ AnimeByUpcoming.title.length >= 21 ? `${AnimeByUpcoming.title.substring(0,21)} ...` : AnimeByUpcoming.title }}</h3>
               <div class="subMeta flex items-center">
                 <h4>{{ AnimeByUpcoming.rating.length >= 10 ? AnimeByUpcoming.rating.split(' ')[0] : AnimeByUpcoming.rating }}</h4>
                 <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ AnimeByUpcoming.type }}</span></h4>
@@ -241,15 +245,15 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
 
-    <!-- flex left basis-70% - right basis-30  -->
-    <div class="flex h-12">
+      <!-- flex left basis-70% - right basis-30  -->
+      <div class="flex max-sm:flex-col mt-12">
       <!-- left -->
-      <div class="flex-item-left basis-[75%] p-2">
+      <div class="flex-item-left basis-[75%]">
         <div>
-          <div class="flex justify-between p-4">
+
+          <div class="flex justify-between">
             <h3 class="title text-2xl text-bold">Recent Episodes</h3>
             <button class="btn">See more ></button>
           </div>
@@ -273,7 +277,7 @@
                 <div class="subMeta flex items-center">
                   <span class="text-xs">{{ getRecentAnime.region_locked === true? "Region Locked" : "Region Unlocked"}}</span>
                 </div>
-                <button class="btn button">Watch</button>
+                <button @click="watchRoute(getRecentAnime.entry.mal_id)" class="btn button">Watch</button>
               </div>
             </div>
           </div>
@@ -286,11 +290,11 @@
             <button class="btn">See more Schedules ></button>
           </div>
           <div class="container grow p-5">
-            <div class="container flex gap-4 justify-around mb-6" >
-              <button class="btn button basis-auto" @click="e => selectDay(e)" v-for="(day, index) in days" :key="index" :value="day.dayValue">{{ day.title }}</button>
+            <div class="container flex max-sm:flex-wrap gap-4 justify-around mb-6" >
+              <button class="btn button basis-auto " @click="e => selectDay(e)" v-for="(day, index) in days" :key="index" :value="day.dayValue">{{ day.title }}</button>
             </div>
 
-            <div v-if="getScheduleData.length <= 0" class="flex flex-col gap-6 justify-around">
+            <div v-if="!getScheduleData || getScheduleData.length === 0" class="flex flex-col gap-6 justify-around">
               <button class="hover:bg-600-green hover:cursor-pointer item flex-nowrap flex gap-4 border-b rounded-none p-4" v-for="(ScheduleData,index) in getScheduleData" :key="ScheduleData.mal_id">
                 <div id="schedule-flex-left" class="flex flex-col gap-4">
                   <div class="skeleton h-4 w-28"></div>
@@ -328,26 +332,32 @@
 
       </div>
       <!-- right -->
-      <div class="flex-item-right basis-[25%] p-2">
+      <div class="flex-item-right basis-[25%]">
         <div>
           <div class="genres flex p-4">
             <h3 class="title text-2xl text-bold">Genres</h3>
           </div>
 
-          <div class="flex flex-wrap gap-2 justify-around bg-600-gray">
+          <div v-if="getAnimeGenresData || getAnimeGenresData.length >= 0" class="flex flex-wrap gap-2 justify-around bg-600-gray">
             <h5 class=" p-4 text-center flex-wrap nth-[3n+1]:bg-600-blue" v-for="genre in getAnimeGenresData" :key="genre.mal_id">{{ genre.name.length >= 8? genre.name.substring(0,8) + '...' :  genre.name}}</h5>
           </div>
         </div>
+      </div>
 
       </div>
-    </div>
   
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { useJikenStore } from '~/store/store';
+  import { useWindowSize } from '@vueuse/core';
+  
+  const { width } = useWindowSize();
+  const chunkSize = ref(4); // Default chunk size
+
   const jikenStore = useJikenStore()
   const refSelectedDay = ref('monday')
   // loading refs
@@ -356,6 +366,10 @@
   const isReviewCardsLoading = ref(false)
   const refScheduleLoading = ref(false)
   const refRecentEpisodesLoading = ref(false)
+  const refGenreLoading = ref(false)
+
+  const courselCard = ref([])
+  const currIndex = ref(1)
 
   const {
     getTopAnimeByPopData,
@@ -384,20 +398,19 @@
   onMounted(async () => {
   try {
     //await jikenStore.GetTopAnime().finally((response) =>{ heroLoading.value = true;});
-    await jikenStore.GetTopAnimeByPopularity();
-    await jikenStore.getRecentAnimeReviews().finally(() => {isReviewCardsLoading.value = true});
+    await jikenStore.GetTopAnimeByPopularity()
+    await jikenStore.getRecentAnimeReviews().then(() => {isReviewCardsLoading.value = true}).catch(error => console.log(error.message));
     await jikenStore.getRecentWatchAnime()
     await jikenStore.getAnimeGenres()
 
     // Ensure the ref exists before passing it
-   Promise.all([ await DataChunk(null,null, 4),
-    await DataChunk('pg13', 'upcoming', 5), 
-    await DataChunk('pg13', 'airing', 5),
-    await DataChunk('pg13', 'bypopularity', 5),
-    await DataChunk('pg13', 'favorite', 5)
-  ])
-  
-  await jikenStore.getSchedules('monday')
+    Promise.all([ await DataChunk(null,null, 4), 
+     await DataChunk('pg13', 'upcoming', 5), 
+     await DataChunk('pg13', 'airing', 5), 
+     await DataChunk('pg13', 'bypopularity', 5), 
+     await DataChunk('pg13', 'favorite', 5) 
+    ])
+  await jikenStore.getSchedules('monday').then(() => {refScheduleLoading.value = true}).catch((error) => {refScheduleLoading.value = false; console.error(error.message)})
   } catch (error) {
     console.error(error);
   }
@@ -408,21 +421,20 @@
   /*------------------------------------------------- */
   const animeDataChunk = computed(() => {
   let chunks = [];
-  const chunkSize = 6;
-  for (let i = 0; i < getTopAnimeByPopData.value.length; i += chunkSize) {
-      chunks.push(getTopAnimeByPopData.value.slice(i, i + chunkSize));
+  if(chunkSize.value <= 0) throw new Error(`chunkSize not initialize: ${chunkSize.value}`)
+  for (let i = 0; i < getTopAnimeByPopData.value.length; i += chunkSize.value) {
+      chunks.push(getTopAnimeByPopData.value.slice(i, i + chunkSize.value));
     }
-    console.log(chunks)
     return chunks; // ✅ Make sure to return the computed result
   });
 
   const animeDataChunkReview = computed(() => {
     let dataChunkReview = []
-    const chunkSize = 5
-    for(let x = 0; x <= recentAnimeReviews.value.length; x += 5) {
-      dataChunkReview.push(recentAnimeReviews.value.slice(x, x+chunkSize))
+    if(chunkSize.value <= 0) throw new Error(`chunkSize not initialize: ${chunkSize.value}`)
+    for(let x = 0; x <= recentAnimeReviews.value.length; x += chunkSize.value) {
+      dataChunkReview.push(recentAnimeReviews.value.slice(x, x + chunkSize.value))
     }
-    //console.log(dataChunkReview)
+    console.log(dataChunkReview)
     return dataChunkReview
   })
   /*------------------------------------------------- */
@@ -441,18 +453,60 @@
   const selectDay = (event?:Event) => {
     if(!event) throw new Error('event is not defined in selectDat Function')
     event.stopPropagation()
-    console.log(event.target.value)
     refSelectedDay.value = event.target.value
+  }
+  const animeDataChunkUpdate = () => {
+    if(width.value >= 1300) {
+      chunkSize.value = 5
+    } else if (width.value >= 768) {
+      chunkSize.value = 2
+    } else {
+      chunkSize.value = 1
+    }
+
+  }
+
+  const watchRoute = (anime) => {
+    navigateTo({path:"/watch",
+      query: {anime_id: anime}
+    })
+  }
+
+  const goToCard = async ( index ) => {
+    currIndex.value = index;
+    console.log(currIndex.value)
+    await nextTick()
+    const el = document.getElementById(`reviewCard${index}`)
+    el?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'})
+  }
+
+  const next = () => {
+    if(currIndex.value < computeIndexMax(recentAnimeReviews.value)){ 
+      goToCard( currIndex.value + 1)
+      console.log('next slide: ', computeIndexMax(recentAnimeReviews.value))
+    }
+  }
+
+  const prev = () => {
+    if(currIndex.value > 1) {
+      goToCard(currIndex.value - 1)
+      console.log('prev slide: ', computeIndexMax(recentAnimeReviews.value))
+    }
   }
 
   /*------------------------------------------------- */
   /*---------------- WATCH FUNCTIONS ---------------- */
   /*------------------------------------------------- */
   watch(refSelectedDay, async () => {
-    //console.log('day selected is: ', refSelectedDay.value)
     await jikenStore.getSchedules(refSelectedDay.value)
-    //console.log('getScheduleData updated!: ', getScheduleData.value)
   })
+  watch(width,animeDataChunkUpdate,{immediate:true})
+  /*------------------------------------------------- */
+  /*--------------- COMPUTED PROPERTIES ------------- */
+  /*------------------------------------------------- */
+  const computeIndexMax = ( computeData ) => {
+    return computeData?.length - 1 || 0
+  }
 
 
 </script>
