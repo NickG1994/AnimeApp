@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     const {data, error} = await event.$fetch(`${config.public.baseURL}reviews/anime`)
     
     if(error) throw new Error('unable to fetch RecentAnimeReviews: ', error)
-      //console.log(data)
+
     return {data:data, error: error}
   } catch (error) {
     throw new Error(error)

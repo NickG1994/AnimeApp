@@ -213,14 +213,14 @@ export const useJikenStore = defineStore('jikenStore',{
             }
         },
 
-        async getAnimeSearch() {
+        async getAnimeSearch(params) {
             try {
                 if(import.meta.client) {
                     const storedData = JSON.parse(localStorage.getItem('getSearchAnime')) || null
 
                     try {
                         if(storedData) {
-                            if(Array.isArray(storedData)) {
+                            if(Array.isArray(storedData)) { 
                                 this.getSearchAnime = null;
                                 localStorage.removeItem('getSearchAnime')
                             }
@@ -232,7 +232,9 @@ export const useJikenStore = defineStore('jikenStore',{
                     }
 
                     if(!storedData) {
-                        const { data, error } = $fetch('api/Jikan/GetSearchAnime');
+                        const { data, error } = $fetch('api/Jikan/GetSearchAnime', {
+                            params
+                        });
                         if(error) throw new Error(error)
                         localStorage.setItem('getSearchAnime', JSON.stringify(data));
                         this.getSearchAnime = data

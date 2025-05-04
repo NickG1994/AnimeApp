@@ -1,18 +1,22 @@
 <template>
   <div id="main">
     <!-- hero section -->
-    <div v-if="!animeDataHeroCards || animeDataHeroCards.length == 0" class="skeleton w-full max-h-[550px] h-[550px] transition"></div>
+    <div v-if="!animeDataHeroCards 
+    || animeDataHeroCards.length == 0" 
+    class="skeleton w-full max-h-[550px] h-[550px] transition"
+    >
+    </div>
     <div v-else class="carousel w-full max-h-[550px] h-[550px] transition">
       <div :id="`slide${index + 1}`" v-for="(animeCards, index) in animeDataHeroCards" :key="index" class="carousel-item w-full">
         <div
           class="hero relative bg-cover overflow-hidden">
-          <img class="absolute right-0 w-[65%]" :src="animeCards.images.jpg.large_image_url" />
+          <img class="absolute right-0 w-[65%]" :src="animeCards.images.jpg?.large_image_url" />
           <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent shadow-[inset_600px_0px_50px_rgba(0,0,0,1)]"></div>
           <div class="hero-overlay bg-opacity-60"></div>
           <div class="hero-content text-neutral-content justify-self-start ml-8">
             <div class="max-w-md">
               <h3>#{{ animeCards.rank }} SpotLight</h3>
-              <h1 class="mb-5 text-5xl font-bold">{{ animeCards.title_english}}</h1>
+              <h1 class="mb-5 text-5xl font-bold">{{ animeCards?.title_english || 'error'}}</h1>
               <!--<span class="flex gap-4 inline-block"><h4 class="media-type">{{ animeCards.type }}</h4><h4 class="episiode-length">{{animeCards.duration.split(' ')[0]}}m</h4><h4 class="premiered">{{ animeCards.aired.from}}</h4></span>-->
               <p class="mt-5">
                 {{ animeCards.synopsis.substring(0,120)}}
@@ -98,13 +102,13 @@
     </div>
 
     <!-- Comments/Reviews -->
-    <div  class="overflow-hidden p-4">
+    <div  class="overflow-hidden bg-gray-900 p-4">
       <div class="flex justify-between mb-12">
         <h3 class="title text-2xl text-bold">Recent Reviews</h3>
         <button class="btn">See more ></button>
       </div>
 
-    <div class="flex justify-between gap-4 bg-black-900 p-6">
+    <div class="flex justify-between gap-4 p-6">
       <div class="carousel flex gap-4">
         <div 
           :id="`reviewCard${(index + 1)}`" 
@@ -277,7 +281,7 @@
                 <div class="subMeta flex items-center">
                   <span class="text-xs">{{ getRecentAnime.region_locked === true? "Region Locked" : "Region Unlocked"}}</span>
                 </div>
-                <button @click="watchRoute(getRecentAnime.entry.mal_id)" class="btn button">Watch</button>
+                <button @click="watchRoute(getRecentAnime.entry.mal_id, getRecentAnime.entry.title, getRecentAnime)" class="btn button">Watch</button>
               </div>
             </div>
           </div>
@@ -384,6 +388,12 @@
     getAnimeByFavoriteData
   } = storeToRefs(jikenStore)
 
+  import { useMyWatchAnimeStore } from '~/store/WatchAnime';
+  const WatchStore = useMyWatchAnimeStore()
+  const  {
+    selectedWatch
+  } = storeToRefs(WatchStore)
+
   const days = [
     { id: 1, title: "Monday", dayValue: "monday" },
     { id: 2, title: "Tuesday", dayValue: "tuesday" },
@@ -397,46 +407,65 @@
   /*------------------------------------------------- */
   onMounted(async () => {
   try {
-    //await jikenStore.GetTopAnime().finally((response) =>{ heroLoading.value = true;});
-    await jikenStore.GetTopAnimeByPopularity()
-    await jikenStore.getRecentAnimeReviews().then(() => {isReviewCardsLoading.value = true}).catch(error => console.log(error.message));
-    await jikenStore.getRecentWatchAnime()
-    await jikenStore.getAnimeGenres()
-
-    // Ensure the ref exists before passing it
-    Promise.all([ await DataChunk(null,null, 4), 
-     await DataChunk('pg13', 'upcoming', 5), 
-     await DataChunk('pg13', 'airing', 5), 
-     await DataChunk('pg13', 'bypopularity', 5), 
-     await DataChunk('pg13', 'favorite', 5) 
-    ])
-  await jikenStore.getSchedules('monday').then(() => {refScheduleLoading.value = true}).catch((error) => {refScheduleLoading.value = false; console.error(error.message)})
+    await jikenStore.GetTopAnimeByPopularity();
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching top anime by popularity:', error.message);
+  }
+
+  try {
+    await jikenStore.getRecentAnimeReviews();
+    isReviewCardsLoading.value = true;
+  } catch (error) {
+    console.error('Error fetching recent anime reviews:', error.message);
+  }
+
+  try {
+    await jikenStore.getRecentWatchAnime();
+  } catch (error) {
+    console.error('Error fetching recent watch anime:', error.message);
+  }
+
+  try {
+    await jikenStore.getAnimeGenres();
+  } catch (error) {
+    console.error('Error fetching anime genres:', error.message);
+  }
+
+  try {
+    await Promise.all([
+      DataChunk(null, null, 4),
+      DataChunk('pg13', 'upcoming', 5),
+      DataChunk('pg13', 'airing', 5),
+      DataChunk('pg13', 'bypopularity', 5),
+      DataChunk('pg13', 'favorite', 5),
+    ]);
+  } catch (error) {
+    console.error('Error fetching data chunks:', error.message);
+  }
+
+  try {
+    await jikenStore.getSchedules('monday');
+    refScheduleLoading.value = true;
+  } catch (error) {
+    refScheduleLoading.value = false;
+    console.error('Error fetching schedules:', error.message);
   }
 });
 
   /*------------------------------------------------- */
   /*-------------- Computed Properties -------------- */
   /*------------------------------------------------- */
-  const animeDataChunk = computed(() => {
-  let chunks = [];
-  if(chunkSize.value <= 0) throw new Error(`chunkSize not initialize: ${chunkSize.value}`)
-  for (let i = 0; i < getTopAnimeByPopData.value.length; i += chunkSize.value) {
-      chunks.push(getTopAnimeByPopData.value.slice(i, i + chunkSize.value));
+  const createChunks = (data, size) => {
+    if (size <= 0) throw new Error(`chunkSize not initialized: ${size}`);
+    const chunks = [];
+    for (let i = 0; i < data.length; i += size) {
+      chunks.push(data.slice(i, i + size));
     }
-    return chunks; // ✅ Make sure to return the computed result
-  });
+    return chunks;
+  };
 
-  const animeDataChunkReview = computed(() => {
-    let dataChunkReview = []
-    if(chunkSize.value <= 0) throw new Error(`chunkSize not initialize: ${chunkSize.value}`)
-    for(let x = 0; x <= recentAnimeReviews.value.length; x += chunkSize.value) {
-      dataChunkReview.push(recentAnimeReviews.value.slice(x, x + chunkSize.value))
-    }
-    console.log(dataChunkReview)
-    return dataChunkReview
-  })
+  const animeDataChunk = computed(() => createChunks(getTopAnimeByPopData.value, chunkSize.value));
+  const animeDataChunkReview = computed(() => createChunks(recentAnimeReviews.value, chunkSize.value));
   /*------------------------------------------------- */
   /*------------------ Functions -------------------- */
   /*------------------------------------------------- */
@@ -456,25 +485,32 @@
     refSelectedDay.value = event.target.value
   }
   const animeDataChunkUpdate = () => {
-    if(width.value >= 1300) {
-      chunkSize.value = 5
-    } else if (width.value >= 768) {
-      chunkSize.value = 2
-    } else {
-      chunkSize.value = 1
+  chunkSize.value = width.value >= 1300 ? 5 : width.value >= 768 ? 2 : 1;
+};
+
+  const watchRoute = async (id, title, getRecentAnime) => {
+    try {
+      const urlEncoded = encodeURI(title);
+      selectedWatch.value = getRecentAnime;
+  
+      // Set the anime ID in the store
+      WatchStore.getAnime_id(id);
+  
+      // Fetch the anime data before navigating
+      await WatchStore.fetchGetAnimeById();
+  
+      // Navigate to the anime details page
+      navigateTo({
+        path: `/anime/${urlEncoded}`,
+        query: { anime_id: id },
+      });
+    } catch (error) {
+      console.error('Error in watchRoute:', error);
     }
-
-  }
-
-  const watchRoute = (anime) => {
-    navigateTo({path:"/watch",
-      query: {anime_id: anime}
-    })
-  }
+  };
 
   const goToCard = async ( index ) => {
     currIndex.value = index;
-    console.log(currIndex.value)
     await nextTick()
     const el = document.getElementById(`reviewCard${index}`)
     el?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'})
