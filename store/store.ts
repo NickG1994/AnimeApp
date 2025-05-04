@@ -46,7 +46,6 @@ export const useJikenStore = defineStore('jikenStore',{
                 
                 try {
                     if(storedData) {
-                        //onsole.log('data stored: ',storedData) 
                         if(!Array.isArray(storedData)) {
                             localStorage.removeItem('recentAnimeReviews')
                             this.recentAnimeReviews = null
@@ -137,7 +136,6 @@ export const useJikenStore = defineStore('jikenStore',{
                         this[key] = data;
                     } else {
                         this[key] = storedData;
-                        //console.warn(`Persistent data fetched: ${key}`, this[key]);
                     }
                 }
                 
@@ -224,7 +222,7 @@ export const useJikenStore = defineStore('jikenStore',{
                                 this.getSearchAnime = null;
                                 localStorage.removeItem('getSearchAnime')
                             }
-                        }   
+                        }  
                     } catch (error) {
                         this.getSearchAnime = null;
                         localStorage.removeItem('getSearchAnime')
