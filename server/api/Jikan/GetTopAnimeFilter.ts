@@ -11,10 +11,7 @@ export default defineEventHandler(async (event) => {
                 'limit': limit
             }
         });
-        if(error) {
-            throw new Error(`error getting data from api: ${error}`)
-        }
-        return data;
+        return {data: data, error: error};
     } catch (error) {
         console.error("Error fetching anime data:", error);
         throw createError({ statusCode: 500, statusMessage: "Failed to fetch anime data" });

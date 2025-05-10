@@ -116,7 +116,7 @@
           class="flex flex-nowrap gap-4 w-[100vw] justify-around pr-12 pl-12 basis-[95%]" 
           v-for="(cards, index) in animeDataChunkReview" :key="index">
             <div class="card bg-base-100 shadow-xl w-[100vw]" v-for="(slide, reviewIndex) in cards" :key="slide.mal_id">
-              <div v-if="animeDataChunkReview.length <= 0" class="flex w-52 flex-col gap-4">
+              <div v-if="animeDataChunkReview?.length <= 0" class="flex w-52 flex-col gap-4">
                 <div class="skeleton h-32 w-full"></div>
                 <div class="skeleton h-4 w-28"></div>
                 <div class="skeleton h-4 w-full"></div>
@@ -125,13 +125,13 @@
               <div v-else class="carousel-item flex flex-col">
                 <figure class="flex items-center">
                   <img class="w-16 h-16 rounded-full mr-6" 
-                  :src="slide.user.images.webp.image_url? 
-                  slide.user.images.webp.image_url 
+                  :src="slide.user.images.webp?.image_url? 
+                  slide.user.images.webp?.image_url 
                   : 'https://placehold.co/600x400'" />
-                  <div class="container">{{ slide.user.username  }}</div>
+                  <div class="container">{{ slide.user?.username  }}</div>
                 </figure>
                 <div class="card-body">
-                  {{ slide.review <= 150 ? slide.review : slide.review.substring(0,150) }}
+                  {{ slide?.review <= 150 ? slide?.review : slide.review?.substring(0,150) }}
                 </div>
               </div>
               </div>
@@ -150,7 +150,7 @@
         <!-- TOP AIRING -->
         <div class="col">
 
-          <h2 class="title font-bold text-lg text-yellow-600">Top Airing </h2>
+          <h2 class="title font-bold text-lg text-yellow-600"> Top Airing </h2>
           <div class="flex flex-col gap-12 w-[100%] h-[calc(100%/5)] mt-4" v-if="!getTopAnimeByAiringData || getTopAnimeByAiringData.length === 0">
             <div v-for="(skeleton, index ) in 5" :key="index" class="flex w-[100%] gap-6">
               <div class="skeleton w-[60px] h-[90px] w-full basis-[30%]"></div>
@@ -162,12 +162,12 @@
             </div>
           </div>             
           <div v-else class="data card card-side border-b rounded-none" v-for="(TopAiringAnime, index) in getTopAnimeByAiringData" :key="TopAiringAnime.mal_id">
-            <figure class="w-[60px]"><img :src="TopAiringAnime.images.webp.image_url"/></figure>
+            <figure class="w-[60px]"><img :src="TopAiringAnime.images.webp?.image_url"/></figure>
             <div class="card-body">
-              <h3 class="title">{{ TopAiringAnime.title.length >= 21 ? `${TopAiringAnime.title.substring(0,21)} ...` : TopAiringAnime.title  }}</h3>
+              <h3 class="title">{{ TopAiringAnime?.title.length >= 21 ? `${TopAiringAnime?.title.substring(0,21)} ...` : TopAiringAnime.title  }}</h3>
               <div class="subMeta flex items-center">
-                <h4>{{ TopAiringAnime.rating.length >= 10 ? TopAiringAnime.rating.split(' ')[0] : TopAiringAnime.rating }}</h4>
-                <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopAiringAnime.type }}</span></h4>
+                <h4>{{ TopAiringAnime?.rating.length >= 10 ? TopAiringAnime?.rating.split(' ')[0] : TopAiringAnime?.rating }}</h4>
+                <h4 class="ml-2 p-1"> <div class="relative inline-block h-[100%] align-middle"><span class="dot absolute top-0 bottom-0"></span></div> <span class="type ml-2">{{ TopAiringAnime?.type }}</span></h4>
               </div>
             </div>
           </div>              
@@ -355,57 +355,152 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { useJikenStore } from '~/store/store';
-  import { useWindowSize } from '@vueuse/core';
-  
-  const { width } = useWindowSize();
-  const chunkSize = ref(4); // Default chunk size
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { useJikenStore } from '~/store/store';
+import { useWindowSize } from '@vueuse/core';
+import { useMyWatchAnimeStore } from '~/store/WatchAnime';
 
-  const jikenStore = useJikenStore()
-  const refSelectedDay = ref('monday')
-  // loading refs
-  const heroLoading = ref(false)
-  const isTrendingCardsLoading = ref(false)
-  const isReviewCardsLoading = ref(false)
-  const refScheduleLoading = ref(false)
-  const refRecentEpisodesLoading = ref(false)
-  const refGenreLoading = ref(false)
+const { width } = useWindowSize();
+const chunkSize = ref(4); // Default chunk size
 
-  const courselCard = ref([])
-  const currIndex = ref(1)
+const jikenStore = useJikenStore();
+const refSelectedDay = ref('monday');
 
-  const {
-    getTopAnimeByPopData,
-    recentAnimeReviews,
-    getRecentWatchAnimeData,
-    getAnimeGenresData,
-    animeDataHeroCards,
-    getScheduleData,
-    getAnimeByUpcomingData,
-    getTopAnimeByAiringData,
-    getAnimeByPopularData,
-    getAnimeByFavoriteData
-  } = storeToRefs(jikenStore)
+// Loading refs
+const heroLoading = ref(false);
+const isTrendingCardsLoading = ref(false);
+const isReviewCardsLoading = ref(false);
+const refScheduleLoading = ref(false);
+const refRecentEpisodesLoading = ref(false);
+const refGenreLoading = ref(false);
 
-  import { useMyWatchAnimeStore } from '~/store/WatchAnime';
-  const WatchStore = useMyWatchAnimeStore()
-  const  {
-    selectedWatch
-  } = storeToRefs(WatchStore)
+const courselCard = ref([]);
+const currIndex = ref(1);
 
-  const days = [
-    { id: 1, title: "Monday", dayValue: "monday" },
-    { id: 2, title: "Tuesday", dayValue: "tuesday" },
-    { id: 3, title: "Wednesday", dayValue: "wednesday" },
-    { id: 4, title: "Thursday", dayValue: "thursday" },
-    { id: 5, title: "Friday", dayValue: "friday" }
-  ];
+const {
+  getTopAnimeByPopData,
+  recentAnimeReviews,
+  getRecentWatchAnimeData,
+  getAnimeGenresData,
+  animeDataHeroCards,
+  getScheduleData,
+  getAnimeByUpcomingData,
+  getTopAnimeByAiringData,
+  getAnimeByPopularData,
+  getAnimeByFavoriteData,
+} = storeToRefs(jikenStore);
 
-  /*------------------------------------------------- */
-  /*-------------- Life Cycles Functions ------------ */
-  /*------------------------------------------------- */
-  onMounted(async () => {
+const WatchStore = useMyWatchAnimeStore();
+const { selectedWatch } = storeToRefs(WatchStore);
+
+const days = [
+  { id: 1, title: 'Monday', dayValue: 'monday' },
+  { id: 2, title: 'Tuesday', dayValue: 'tuesday' },
+  { id: 3, title: 'Wednesday', dayValue: 'wednesday' },
+  { id: 4, title: 'Thursday', dayValue: 'thursday' },
+  { id: 5, title: 'Friday', dayValue: 'friday' },
+];
+
+/*------------------------------------------------- */
+/*-------------- Retry Logic Function ------------- */
+/*------------------------------------------------- */
+const fetchWithRetry = async (
+  fetchFunction: () => Promise<any>,
+  retries: number = 3,
+  delay: number = 1000
+): Promise<any> => {
+  let attempt = 0;
+
+  while (attempt < retries) {
+    try {
+      // Attempt to fetch data
+      return await fetchFunction();
+    } catch (error) {
+      attempt++;
+      console.error(`Attempt ${attempt} failed:`, error.message);
+
+      if (attempt >= retries) {
+        throw new Error(`Failed to fetch data after ${retries} attempts.`);
+      }
+
+      // Wait before retrying
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+};
+
+/*------------------------------------------------- */
+/*------------------ Functions -------------------- */
+/*------------------------------------------------- */
+const DataChunk = async (rating: string | null, filter: string | null, limit: number) => {
+  try {
+    const data = await fetchWithRetry(
+      async () => await jikenStore.getAnimeDataFilter(rating, filter, limit),
+      3, // Number of retries
+      1000 // Delay between retries in milliseconds
+    );
+    console.log(`Data fetched for filter "${filter}":`, data);
+  } catch (error) {
+    console.error(`Failed to fetch data for filter "${filter}":`, error.message);
+  }
+};
+
+const selectDay = (event?: Event) => {
+  if (!event) throw new Error('event is not defined in selectDay Function');
+  event.stopPropagation();
+  refSelectedDay.value = (event.target as HTMLButtonElement).value;
+};
+
+const animeDataChunkUpdate = () => {
+  chunkSize.value = width.value >= 1300 ? 5 : width.value >= 768 ? 2 : 1;
+};
+
+const watchRoute = async (id: number, title: string, getRecentAnime: any) => {
+  try {
+    const urlEncoded = encodeURI(title);
+    selectedWatch.value = getRecentAnime;
+
+    // Set the anime ID in the store
+    WatchStore.getAnime_id(id);
+
+    // Fetch the anime data before navigating
+    await WatchStore.fetchGetAnimeById();
+
+    // Navigate to the anime details page
+    navigateTo({
+      path: `/anime/${urlEncoded}`,
+      query: { anime_id: id },
+    });
+  } catch (error) {
+    console.error('Error in watchRoute:', error);
+  }
+};
+
+const goToCard = async (index: number) => {
+  currIndex.value = index;
+  await nextTick();
+  const el = document.getElementById(`reviewCard${index}`);
+  el?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+};
+
+const next = () => {
+  if (currIndex.value < computeIndexMax(recentAnimeReviews.value)) {
+    goToCard(currIndex.value + 1);
+    console.log('next slide: ', computeIndexMax(recentAnimeReviews.value));
+  }
+};
+
+const prev = () => {
+  if (currIndex.value > 1) {
+    goToCard(currIndex.value - 1);
+    console.log('prev slide: ', computeIndexMax(recentAnimeReviews.value));
+  }
+};
+
+/*------------------------------------------------- */
+/*-------------- Life Cycles Functions ------------ */
+/*------------------------------------------------- */
+onMounted(async () => {
   try {
     await jikenStore.GetTopAnimeByPopularity();
   } catch (error) {
@@ -431,120 +526,78 @@
     console.error('Error fetching anime genres:', error.message);
   }
 
+  // Fetch each dataset individually
   try {
-    await Promise.all([
-      DataChunk(null, null, 4),
-      DataChunk('pg13', 'upcoming', 5),
-      DataChunk('pg13', 'airing', 5),
-      DataChunk('pg13', 'bypopularity', 5),
-      DataChunk('pg13', 'favorite', 5),
-    ]);
+    await DataChunk(null, null, 4);
+    console.log('Fetched general data chunk');
   } catch (error) {
-    console.error('Error fetching data chunks:', error.message);
+    console.error('Error fetching general data chunk:', error.message);
+  }
+
+  try {
+    await DataChunk('pg13', 'upcoming', 5);
+    console.log('Fetched upcoming anime');
+  } catch (error) {
+    console.error('Error fetching upcoming anime:', error.message);
+  }
+
+  try {
+    await DataChunk('pg13', 'airing', 5);
+    console.log('Fetched airing anime');
+  } catch (error) {
+    console.error('Error fetching airing anime:', error.message);
+  }
+
+  try {
+    await DataChunk('pg13', 'bypopularity', 5);
+    console.log('Fetched anime by popularity');
+  } catch (error) {
+    console.error('Error fetching anime by popularity:', error.message);
+  }
+
+  try {
+    await DataChunk('pg13', 'favorite', 5);
+    console.log('Fetched favorite anime');
+  } catch (error) {
+    console.error('Error fetching favorite anime:', error.message);
   }
 
   try {
     await jikenStore.getSchedules('monday');
     refScheduleLoading.value = true;
+    console.log('Fetched schedules for Monday');
   } catch (error) {
     refScheduleLoading.value = false;
     console.error('Error fetching schedules:', error.message);
   }
 });
 
-  /*------------------------------------------------- */
-  /*-------------- Computed Properties -------------- */
-  /*------------------------------------------------- */
-  const createChunks = (data, size) => {
-    if (size <= 0) throw new Error(`chunkSize not initialized: ${size}`);
-    const chunks = [];
-    for (let i = 0; i < data.length; i += size) {
-      chunks.push(data.slice(i, i + size));
-    }
-    return chunks;
-  };
-
-  const animeDataChunk = computed(() => createChunks(getTopAnimeByPopData.value, chunkSize.value));
-  const animeDataChunkReview = computed(() => createChunks(recentAnimeReviews.value, chunkSize.value));
-  /*------------------------------------------------- */
-  /*------------------ Functions -------------------- */
-  /*------------------------------------------------- */
-  /**
-   * function will perform calculations and 
-   * @param <endpoint>
-   * @param <number of data>
-   * @param <store ref>
-   */
-  const DataChunk = async (rating, filter, limit) => {
-      await jikenStore.getAnimeDataFilter(rating, filter, limit);
-  };
-
-  const selectDay = (event?:Event) => {
-    if(!event) throw new Error('event is not defined in selectDat Function')
-    event.stopPropagation()
-    refSelectedDay.value = event.target.value
+/*------------------------------------------------- */
+/*--------------- COMPUTED PROPERTIES ------------- */
+/*------------------------------------------------- */
+const createChunks = (data: any[], size: number) => {
+  if (size <= 0) throw new Error(`chunkSize not initialized: ${size}`);
+  const chunks = [];
+  for (let i = 0; i < data.length; i += size) {
+    chunks.push(data.slice(i, i + size));
   }
-  const animeDataChunkUpdate = () => {
-  chunkSize.value = width.value >= 1300 ? 5 : width.value >= 768 ? 2 : 1;
+  return chunks;
 };
 
-  const watchRoute = async (id, title, getRecentAnime) => {
-    try {
-      const urlEncoded = encodeURI(title);
-      selectedWatch.value = getRecentAnime;
-  
-      // Set the anime ID in the store
-      WatchStore.getAnime_id(id);
-  
-      // Fetch the anime data before navigating
-      await WatchStore.fetchGetAnimeById();
-  
-      // Navigate to the anime details page
-      navigateTo({
-        path: `/anime/${urlEncoded}`,
-        query: { anime_id: id },
-      });
-    } catch (error) {
-      console.error('Error in watchRoute:', error);
-    }
-  };
+const animeDataChunk = computed(() => createChunks(getTopAnimeByPopData.value, chunkSize.value));
+const animeDataChunkReview = computed(() => createChunks(recentAnimeReviews.value, chunkSize.value));
 
-  const goToCard = async ( index ) => {
-    currIndex.value = index;
-    await nextTick()
-    const el = document.getElementById(`reviewCard${index}`)
-    el?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'})
-  }
+const computeIndexMax = (computeData: any[]) => {
+  return computeData?.length - 1 || 0;
+};
 
-  const next = () => {
-    if(currIndex.value < computeIndexMax(recentAnimeReviews.value)){ 
-      goToCard( currIndex.value + 1)
-      console.log('next slide: ', computeIndexMax(recentAnimeReviews.value))
-    }
-  }
-
-  const prev = () => {
-    if(currIndex.value > 1) {
-      goToCard(currIndex.value - 1)
-      console.log('prev slide: ', computeIndexMax(recentAnimeReviews.value))
-    }
-  }
-
-  /*------------------------------------------------- */
-  /*---------------- WATCH FUNCTIONS ---------------- */
-  /*------------------------------------------------- */
-  watch(refSelectedDay, async () => {
-    await jikenStore.getSchedules(refSelectedDay.value)
-  })
-  watch(width,animeDataChunkUpdate,{immediate:true})
-  /*------------------------------------------------- */
-  /*--------------- COMPUTED PROPERTIES ------------- */
-  /*------------------------------------------------- */
-  const computeIndexMax = ( computeData ) => {
-    return computeData?.length - 1 || 0
-  }
-
-
+/*------------------------------------------------- */
+/*---------------- WATCH FUNCTIONS ---------------- */
+/*------------------------------------------------- */
+watch(refSelectedDay, async () => {
+  await jikenStore.getSchedules(refSelectedDay.value);
+});
+watch(width, animeDataChunkUpdate, { immediate: true });
 </script>
 
 <style>

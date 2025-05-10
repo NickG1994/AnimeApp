@@ -1,6 +1,5 @@
 import { defineStore } from "pinia"
 import { useStorage } from '@vueuse/core';  // or wherever it's defined
-import { meta } from "eslint-plugin-vue";
 
 export const useJikenStore = defineStore('jikenStore',{
     state:()=>({
@@ -110,28 +109,37 @@ export const useJikenStore = defineStore('jikenStore',{
 
                     const key = filter2Store[filter] || "animeDataHeroCards";
                     let storedData = JSON.parse(localStorage.getItem(key));
-                    //console.log(storedData)
+
                     try {
+
                         if(storedData) {
                             if(!Array.isArray(storedData)) {
                                 localStorage.removeItem(key)
                                 storedData = null
                             }
                         }
+
                     } catch (error) {
                         console.error('error parsing data in localstorage clearing localstorage for ', key)
                         localStorage.removeItem(key)
                         storedData = null
                     }
-                    
+                    console.log('stored data: ', storedData)
+                    console.log('key: ', key)
+                    console.log('filter: ', filter)
 
-                    if (!storedData) {
+                    if (!storedData || storedData.length <= 0) {
+                        // Fetch data from the API
+                        //console.log('fetching data from api')
+                        //console.log('rating: ', rating)
+                        //console.log('filter: ', filter)
+                        //console.log('limit: ', limit)
                         await delay(3000)
-                        const data = await $fetch("/api/Jikan/GetTopAnimeFilter", {
+                        const {data,error} = await $fetch("/api/Jikan/GetTopAnimeFilter", {
                             query: { rating, filter, limit }
                         });
-                       
-                        //console.log('no stored data!!!')
+                        console.log('data: ', data)
+                        console.log('error: ', error)
                         localStorage.setItem(key, JSON.stringify(data)); // Store fetched data
                         this[key] = data;
                     } else {
