@@ -28,7 +28,7 @@
               </div>
             </div>
           </div>
-          <div class="absolute right-5 top-1/2 flex">
+          <div class="absolute right-5 lg:top-1/2 bottom-[10%] flex flex-col gap-4">
             <a :href="`#slide${index <= 0 ? Math.abs((index -1) * 4)  : (index + 1) - 1 }`" class="btn btn-circle">❮</a>
             <a :href="`#slide${(index + 1) >= 4 ? 1 : index + 2}`" class="btn btn-circle">❯</a>
           </div>
@@ -84,20 +84,42 @@
       </div>
 
       <!-- share site section links/buttons -->
-      <div class="m-4 mt-24 flex gap-8">
-        <img class="w-16 rounded-full cover" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTJydzE1ZWE2YmpqZTVuYXN3czltbHV0aHZ0d2g2d2J0MWU3ZzBleSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ayMW3eqvuP00o/giphy.gif" />
-        <div class="subTitle">
-          <span class="color-yellow-500">Share Site</span>
-          <p>To Your Friends</p>
+      <div class="m-4 mt-24 flex flex-col md:flex-row md:items-center gap-8">
+        <div class="flex items-center gap-4">
+          <!-- Share Site Image -->
+          <img
+            class="w-16 h-16 sm:w-auto rounded-full object-cover mx-auto md:mx-0"
+            src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTJydzE1ZWE2YmpqZTVuYXN3czltbHV0aHZ0d2g2d2J0MWU3ZzBleSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ayMW3eqvuP00o/giphy.gif"
+            alt="Share Site"
+          />
+
+          <!-- Share Site Text -->
+          <div class="text-center md:text-left">
+            <span class="text-yellow-500 text-lg font-bold">Share Site</span>
+            <p class="text-gray-500">To Your Friends</p>
+          </div>
         </div>
-        <div>
-          <button class="btn btn-wide w-32 h-auto rounded-full mr-2"><img class="contain w-5" src="../../public/arrow-share.svg" /><span>share</span></button>
-          <button class="btn btn-wide w-16 h-auto rounded-full bg-black-500 mr-2"><img class="contain w-5" src="../../public/x-icon.svg" /></button>
-          <button class="btn btn-wide w-16 h-auto rounded-full bg-blue-500 mr-2"><img class="contain w-5" src="../../public/facebook-icon.svg" /></button>
-          <button class="btn btn-wide w-16 h-auto rounded-full bg-orange-500 mr-2"><img class="contain w-5" src="../../public/reddit-icon.svg" /></button>
-          <button class="btn btn-wide w-16 h-auto rounded-full"><img class="contain w-5" src="../../public/arrow-share.svg" /></button>
+
+
+        <!-- Share Buttons -->
+        <div class="flex flex-wrap justify-center md:justify-start gap-4">
+          <button class="btn btn-wide w-32 h-auto rounded-full flex items-center gap-2">
+            <img class="w-5" src="../../public/arrow-share.svg" alt="Share Icon" />
+            <span>Share</span>
+          </button>
+          <button class="btn btn-wide w-16 h-auto rounded-full bg-black-500 flex items-center justify-center">
+            <img class="w-5" src="../../public/x-icon.svg" alt="Close Icon" />
+          </button>
+          <button class="btn btn-wide w-16 h-auto rounded-full bg-blue-500 flex items-center justify-center">
+            <img class="w-5" src="../../public/facebook-icon.svg" alt="Facebook Icon" />
+          </button>
+          <button class="btn btn-wide w-16 h-auto rounded-full bg-orange-500 flex items-center justify-center">
+            <img class="w-5" src="../../public/reddit-icon.svg" alt="Reddit Icon" />
+          </button>
+          <button class="btn btn-wide w-16 h-auto rounded-full flex items-center justify-center">
+            <img class="w-5" src="../../public/arrow-share.svg" alt="Share Icon" />
+          </button>
         </div>
-       
       </div>
     </div>
 
@@ -113,7 +135,7 @@
         <div 
           :id="`reviewCard${(index + 1)}`" 
           ref="courselCard" 
-          class="flex flex-nowrap gap-4 w-[100vw] justify-around pr-12 pl-12 basis-[95%]" 
+          class="flex gap-4 w-[100%] justify-around" 
           v-for="(cards, index) in animeDataChunkReview" :key="index">
             <div class="card bg-base-100 shadow-xl w-[100vw]" v-for="(slide, reviewIndex) in cards" :key="slide.mal_id">
               <div v-if="animeDataChunkReview?.length <= 0" class="flex w-52 flex-col gap-4">
@@ -319,17 +341,18 @@
                 </div>
               </button>
             </div>
-
-            <div v-else class="flex flex-col gap-4 justify-around">
-              <button class="hover:bg-600-green hover:cursor-pointer item flex-nowrap flex gap-4" v-for="(ScheduleData,index) in getScheduleData" :key="ScheduleData.mal_id">
-                <div id="schedule-flex-left">
+            <!-- schedule table -->
+            <table v-else class="flex flex-col gap-4 justify-around">
+              <tr class="hover:bg-600-green hover:cursor-pointer item flex-nowrap flex gap-4 even:bg-gray-900 p-2" v-for="(ScheduleData,index) in getScheduleData" :key="ScheduleData.mal_id">
+                <td id="schedule-flex-left">
                   {{ ScheduleData.broadcast.string }}
-                </div>
-                <div id="schedule-flex-right" class="flex justify-between w-full">
+                </td>
+                <td id="schedule-flex-right" class="flex justify-between w-full">
                   <span class="inline-block">{{ ScheduleData.title }}</span> <span class="inline-block">{{ ScheduleData.broadcast.time }}</span>
-                </div>
-              </button>
-            </div>
+                </td>
+              </tr>
+            </table>
+
           </div>
 
         </div>
@@ -342,7 +365,7 @@
             <h3 class="title text-2xl text-bold">Genres</h3>
           </div>
 
-          <div v-if="getAnimeGenresData || getAnimeGenresData.length >= 0" class="flex flex-wrap gap-2 justify-around bg-600-gray">
+          <div v-if="getAnimeGenresData || getAnimeGenresData.length >= 0" class="flex flex-wrap gap-2 justify-around bg-gray-900 rounded-xl">
             <h5 class=" p-4 text-center flex-wrap nth-[3n+1]:bg-600-blue" v-for="genre in getAnimeGenresData" :key="genre.mal_id">{{ genre.name.length >= 8? genre.name.substring(0,8) + '...' :  genre.name}}</h5>
           </div>
         </div>
@@ -475,6 +498,7 @@ const watchRoute = async (id: number, title: string, getRecentAnime: any) => {
     console.error('Error in watchRoute:', error);
   }
 };
+
 
 const goToCard = async (index: number) => {
   currIndex.value = index;
