@@ -7,7 +7,7 @@
     >
     </div>
     <div v-else class="carousel w-full max-h-[550px] h-[550px] transition">
-      <div :id="`slide${index + 1}`" v-for="(animeCards, index) in animeDataHeroCards" :key="index" class="carousel-item w-full">
+      <div :id="`heroSlide${index + 1}`" v-for="(animeCards, index) in animeDataHeroCards" :key="index" class="carousel-item w-full">
         <div
           class="hero relative bg-cover overflow-hidden">
           <img class="absolute right-0 w-[65%]" :src="animeCards.images.jpg?.large_image_url" />
@@ -29,8 +29,8 @@
             </div>
           </div>
           <div class="absolute right-5 lg:top-1/2 bottom-[10%] flex flex-col gap-4">
-            <a :href="`#slide${index <= 0 ? Math.abs((index -1) * 4)  : (index + 1) - 1 }`" class="btn btn-circle">❮</a>
-            <a :href="`#slide${(index + 1) >= 4 ? 1 : index + 2}`" class="btn btn-circle">❯</a>
+            <button class="btn btn-circle" @click="prev('heroSlide', animeDataHeroCards.length)">❮</button>
+            <button class="btn btn-circle" @click="next('heroSlide',animeDataHeroCards.length)">❯</button>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@
 
         <div 
           v-else
-          :id="`slidcards${animeDataChunkIndex + 1}`" 
+          :id="`trendingCard${animeDataChunkIndex + 1}`" 
           v-for="(slides, animeDataChunkIndex) in animeDataChunk" 
           :key="animeDataChunkIndex"
           class="carousel-item min-w-full p-6 flex justify-around" 
@@ -75,8 +75,8 @@
             </button> 
 
             <div class="flex flex-col gap-4 justify-center">
-              <a :href="`#slidcards${animeDataChunkIndex <= 0 ? Math.abs((animeDataChunkIndex -1) * 6)  : (animeDataChunkIndex + 1) - 1 }`" class="btn flex-1">❮</a>
-              <a :href="`#slidcards${(animeDataChunkIndex + 1) >= 6 ? 1 : animeDataChunkIndex + 2}`" class="btn flex-1">❯</a>
+              <button class="btn flex-1" @click="prev('trendingCard', animeDataChunk.length)">❮</button>
+              <button class="btn flex-1" @click="next('trendingCard', animeDataChunk.length)">❯</button>
             </div>
 
         </div>
@@ -160,8 +160,8 @@
             </div>
       </div>
       <div class="flex flex-col gap-4 justify-center basis-[5%]">
-        <button class="btn flex-1" @click="prev">❮</button>
-        <button class="btn flex-1" @click="next">❯</button>
+        <button class="btn flex-1" @click="prev('reviewCard', animeDataChunkReview.length)">❮</button>
+        <button class="btn flex-1" @click="next('reviewCard', animeDataChunkReview.length)">❯</button>
       </div>
       </div>
     </div>
@@ -398,7 +398,6 @@ const refRecentEpisodesLoading = ref(false);
 const refGenreLoading = ref(false);
 
 const courselCard = ref([]);
-const currIndex = ref(1);
 
 const {
   getTopAnimeByPopData,
@@ -491,7 +490,7 @@ const watchRoute = async (id: number, title: string, getRecentAnime: any) => {
 
     // Navigate to the anime details page
     navigateTo({
-      path: `/anime/${urlEncoded}`,
+      path: `/anime/${id}`,
       query: { anime_id: id },
     });
   } catch (error) {
@@ -499,26 +498,44 @@ const watchRoute = async (id: number, title: string, getRecentAnime: any) => {
   }
 };
 
+const currIndex = ref<Record<string, number>>({
+  reviewCard: 1, // Initialize for review slider
+  trending: 1,   // Initialize for trending slider
+  hero: 1,       // Initialize for hero slider
+});
 
-const goToCard = async (index: number) => {
-  currIndex.value = index;
+// Function to scroll to a specific card
+const goToCard = async (index: number, sliderId: string, maxIndex: number) => {
+  // Wrap the index to stay within bounds
+  if (index > maxIndex) {
+    index = 1; // Wrap to the first card
+  } else if (index < 1) {
+    index = maxIndex; // Wrap to the last card
+  }
+
+  // Update the current index for the slider
+  currIndex.value[sliderId] = index;
+
+  // Scroll to the target card
   await nextTick();
-  const el = document.getElementById(`reviewCard${index}`);
-  el?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-};
-
-const next = () => {
-  if (currIndex.value < computeIndexMax(recentAnimeReviews.value)) {
-    goToCard(currIndex.value + 1);
-    console.log('next slide: ', computeIndexMax(recentAnimeReviews.value));
+  const el = document.getElementById(`${sliderId}${index}`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+  } else {
+    console.error(`Element with ID ${sliderId}${index} not found.`);
   }
 };
 
-const prev = () => {
-  if (currIndex.value > 1) {
-    goToCard(currIndex.value - 1);
-    console.log('prev slide: ', computeIndexMax(recentAnimeReviews.value));
-  }
+// Function to navigate to the next card
+const next = (sliderId: string, maxIndex: number) => {
+  const currentIndex = currIndex.value[sliderId] || 1; // Default to 1 if undefined
+  goToCard(currentIndex + 1, sliderId, maxIndex);
+};
+
+// Function to navigate to the previous card
+const prev = (sliderId: string, maxIndex: number) => {
+  const currentIndex = currIndex.value[sliderId] || 1; // Default to 1 if undefined
+  goToCard(currentIndex - 1, sliderId, maxIndex);
 };
 
 /*------------------------------------------------- */

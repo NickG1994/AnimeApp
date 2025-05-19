@@ -1,65 +1,85 @@
 <template>
-  <div id="main">
-    <div v-if="loading">Loading...</div>
+  <div id="main" class="p-4 md:p-8 lg:p-12">
+    <div v-if="loading" class="text-center text-lg font-bold">Loading...</div>
     <div v-else>
-      <div class="max-h-[550px] h-[550px] p-12 flex gap-6">
-        <div class="left basis-[75%]">
-          <div class="anime-info p-12 flex gap-6">
-            <figure class="anime-info-image basis-[60%]">
-              <img :src="getAnimeById?.images.webp?.image_url" />
+      <!-- Main Container -->
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Left Section -->
+        <div class="left lg:basis-[75%] flex flex-col gap-6">
+          <!-- Anime Info -->
+          <div class="anime-info flex flex-col md:flex-row gap-6 bg-gray-800 p-6 rounded-lg shadow-lg">
+            <!-- Anime Image -->
+            <figure class="anime-info-image w-full md:basis-[40%] flex-shrink-0">
+              <img
+                :src="getAnimeById?.images.webp?.image_url"
+                alt="Anime Image"
+                class="w-full h-auto rounded-lg object-cover"
+              />
             </figure>
-            <div class="anime-info-content">
-              <span class="breadcrumbs">
-                <NuxtLink to="/">Home</NuxtLink>
+            <!-- Anime Content -->
+            <div class="anime-info-content flex flex-col gap-4">
+              <!-- Breadcrumbs -->
+              <span class="breadcrumbs text-sm text-gray-400 flex gap-2">
+                <NuxtLink to="/" class="hover:underline text-yellow-500">Home</NuxtLink>
+                <span>/</span>
                 <span>{{ getAnimeById?.type || '' }}</span>
+                <span>/</span>
                 <span>{{ getAnimeById?.background || '' }}</span>
+                <span>{{ $route.name }}</span>
               </span>
-              <h1 class="mb-6 text-4xl">{{ getAnimeById?.title || 'error' }}</h1>
-
-              <span class="left-meta">
-                <span>{{ getAnimeById.rating || 'error' }}</span>
-                <span>HD</span>
-                <span>2</span>
-                <span>TV</span>
-                <span>24m</span>
-              </span>
-
-              <div class="button__container">
-                <button class="btn mr-4">Watch Now</button>
-                <button class="btn">Add To List</button>
-
-                <div class="synopsis">
-                  {{ getAnimeById?.synopsis }}
-                </div>
+              <!-- Title -->
+              <h1 class="text-2xl md:text-4xl font-bold text-white">{{ getAnimeById?.title || 'Error' }}</h1>
+              <!-- Meta Info -->
+              <div class="left-meta flex flex-wrap gap-2 text-sm text-gray-300">
+                <span class="bg-gray-700 px-2 py-1 rounded">{{ getAnimeById.rating || 'N/A' }}</span>
+                <span class="bg-gray-700 px-2 py-1 rounded">HD</span>
+                <span class="bg-gray-700 px-2 py-1 rounded">2</span>
+                <span class="bg-gray-700 px-2 py-1 rounded">TV</span>
+                <span class="bg-gray-700 px-2 py-1 rounded">24m</span>
+              </div>
+              <!-- Buttons -->
+              <div class="button__container flex gap-4 mt-4">
+                <button class="btn bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow">
+                  Watch Now
+                </button>
+                <button class="btn bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow">
+                  Add To List
+                </button>
+              </div>
+              <!-- Synopsis -->
+              <div class="synopsis text-gray-300 text-sm mt-4">
+                {{ getAnimeById?.synopsis || 'No synopsis available.' }}
               </div>
             </div>
           </div>
         </div>
-        <div class="right basis-[25%]">
-          <div class="meta-info container flex flex-col gap-6 align-middle">
+
+        <!-- Right Section -->
+        <div class="right lg:basis-[25%] bg-gray-900 p-6 rounded-lg shadow-lg">
+          <div class="meta-info flex flex-col gap-4 text-sm text-gray-300">
             <div class="meta-lang">
-              Japanese title: {{ getAnimeById.title_japanese || 'error' }}
+              <strong class="text-yellow-500">Japanese Title:</strong> {{ getAnimeById.title_japanese || 'N/A' }}
             </div>
             <div class="meta-aired">
-              Aired: {{ getAnimeById.aired?.string || 'error' }}
+              <strong class="text-yellow-500">Aired:</strong> {{ getAnimeById.aired?.string || 'N/A' }}
             </div>
             <div class="meta-premiered">
-              Premiered: Spring 2025
+              <strong class="text-yellow-500">Premiered:</strong> Spring 2025
             </div>
             <div class="meta-status">
-              Status: {{ getAnimeById?.status || 'error' }}
+              <strong class="text-yellow-500">Status:</strong> {{ getAnimeById?.status || 'N/A' }}
             </div>
             <div class="meta-score">
-              MAL Score: {{ getAnimeById?.score || 'error' }}
+              <strong class="text-yellow-500">MAL Score:</strong> {{ getAnimeById?.score || 'N/A' }}
             </div>
             <div class="meta-genre">
-              Genres:
+              <strong class="text-yellow-500">Genres:</strong>
               <span v-for="(genre, index) in getAnimeById.genres" :key="index">
                 {{ genre.name }}<span v-if="index < getAnimeById.genres.length - 1">, </span>
               </span>
             </div>
             <div class="meta-studio">
-              Studios:
+              <strong class="text-yellow-500">Studios:</strong>
               <span v-for="(studio, index) in getAnimeById.studios" :key="index">
                 {{ studio.name }}<span v-if="index < getAnimeById.studios.length - 1">, </span>
               </span>

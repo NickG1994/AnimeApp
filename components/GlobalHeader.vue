@@ -35,7 +35,7 @@
 
       <!-- Logo -->
       <div class="hidden lg:flex">
-        <a class="btn btn-ghost text-xl">daisyUI</a>
+        <NuxtLink to="/" class="btn btn-ghost text-xl">daisyUI</NuxtLink>
       </div>
 
       <!-- Search Bar -->
