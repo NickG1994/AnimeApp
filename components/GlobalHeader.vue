@@ -35,7 +35,7 @@
 
       <!-- Logo -->
       <div class="hidden lg:flex">
-        <NuxtLink to="/" class="btn btn-ghost text-xl">daisyUI</NuxtLink>
+        <NuxtLink to="/" class="w-[220px] h-[120px]"><img class="size-full object-scale-down" src="~/assets/TakuTvLogo.png"></NuxtLink>
       </div>
 
       <!-- Search Bar -->

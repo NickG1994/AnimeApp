@@ -11,7 +11,7 @@
             <!-- Anime Image -->
             <figure class="anime-info-image w-full md:basis-[40%] flex-shrink-0">
               <img
-                :src="getAnimeById?.images.webp?.image_url"
+                :src="getAnimeById?.images.webp?.image_url ?? ''"
                 alt="Anime Image"
                 class="w-full h-auto rounded-lg object-cover"
               />
@@ -24,7 +24,6 @@
                 <span>/</span>
                 <span>{{ getAnimeById?.type || '' }}</span>
                 <span>/</span>
-                <span>{{ getAnimeById?.background || '' }}</span>
                 <span>{{ $route.name }}</span>
               </span>
               <!-- Title -->
@@ -94,19 +93,18 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useMyWatchAnimeStore } from '~/store/WatchAnime';
+import { useMyWatchAnimeStore } from '~/store/AnimeDetails';
 
 const WatchStore = useMyWatchAnimeStore();
 const { getAnimeById } = storeToRefs(WatchStore);
 const loading = ref(true);
 
 onMounted(async () => {
-  const { anime_id } = useRoute().query;
+  const { anime_id } = useRoute().params;
+  console.log('route: ', useRoute().params);
   if (anime_id) {
-    console.log('Anime ID:', anime_id);
     WatchStore.getAnime_id(anime_id);
     await WatchStore.fetchGetAnimeById();
-    console.log('Anime Data:', getAnimeById.value);
     if (getAnimeById.value) {
       console.log('Anime Data:', getAnimeById.value);
     } else {

@@ -28,17 +28,19 @@ export const useJikenStore = defineStore('jikenStore',{
             }
         },
         async GetTopAnimeByPopularity() {
+            const apiEndpoint = '/api/Jikan/GetTopAnimePopularity'
             try {
                 if(this.getTopAnimeByPopData.length > 0) {
                     return;
                 }
-                const data = await $fetch('/api/Jikan/GetTopAnimePopularity')
+                const data = await $fetch(apiEndpoint)
                 this.getTopAnimeByPopData = data
             } catch (error) {
                console.error(error) 
             }
         },
         async getRecentAnimeReviews() {
+            const apiEndpoint = '/api/Jikan/getRecentAnimeReviews'
             try {
             if(import.meta.client) {
                 const storedData = JSON.parse(localStorage.getItem('recentAnimeReviews')) || null
@@ -56,7 +58,7 @@ export const useJikenStore = defineStore('jikenStore',{
                     this.recentAnimeReviews = null
                 } 
                 if(!storedData) { 
-                    const {data, error} = await $fetch('/api/Jikan/getRecentAnimeReviews')
+                    const {data, error} = await $fetch(apiEndpoint)
                     this.recentAnimeReviews = data    
                     localStorage.setItem('recentAnimeReviews',JSON.stringify(data))   
                 }   
@@ -124,16 +126,12 @@ export const useJikenStore = defineStore('jikenStore',{
                         localStorage.removeItem(key)
                         storedData = null
                     }
-                    console.log('stored data: ', storedData)
-                    console.log('key: ', key)
-                    console.log('filter: ', filter)
+                    // console.log('stored data: ', storedData)
+                    // console.log('key: ', key)
+                    // console.log('filter: ', filter)
 
                     if (!storedData || storedData.length <= 0) {
                         // Fetch data from the API
-                        //console.log('fetching data from api')
-                        //console.log('rating: ', rating)
-                        //console.log('filter: ', filter)
-                        //console.log('limit: ', limit)
                         await delay(3000)
                         const {data,error} = await $fetch("/api/Jikan/GetTopAnimeFilter", {
                             query: { rating, filter, limit }
@@ -160,22 +158,19 @@ export const useJikenStore = defineStore('jikenStore',{
                             this.getAnimeGenres = null
                             localStorage.removeItem('getAnimeGenresData')
                         }
-                        //console.log('genres: ', storedData)
                     }   
                 } catch (error) {
                     this.getAnimeGenres = null
                     localStorage.removeItem('getAnimeGenresData')
                 }
                 if(!storedData) {
-                    const data = await $fetch('/api/Jikan/GetAnimeGenres')
-                    this.getAnimeGenresData = data
+                    const { data, error }  = await $fetch('/api/Jikan/GetAnimeGenres')
+                    this.getAnimeGenresData = data.data
                     localStorage.setItem("getAnimeGenresData",JSON.stringify(data)) 
-                    //console.log('genre get data: ', this.getAnimeGenresData)
                 }
                 else {
                     this.getAnimeGenresData = storedData
                     localStorage.setItem("getAnimeGenresData",JSON.stringify(storedData)) 
-                    //console.log('genre persistant data: ', this.getAnimeGenresData)
                 }
 
             } catch (error) {

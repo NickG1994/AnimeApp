@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig(event)
-    const {data, error} = await event.$fetch(`${config.public.baseURL}watch/episodes`) 
+    const {data} = await event.$fetch(`${config.public.baseURL}watch/episodes`) 
     if(data.length <= 0) {
       throw new error(`There is no data returned from endpoint: ${data}`)
     }

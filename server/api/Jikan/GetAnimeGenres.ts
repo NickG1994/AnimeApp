@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     if(error) {
       throw new error(`error!!!, unable to fetch genres: ${error}`)
     }
-    return data
+    return {data: data, error: error}
   } catch (error) {
     console.error(error)
   }
