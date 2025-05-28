@@ -48,7 +48,7 @@ export const useMyWatchNowStore = defineStore('myWatchNowStore',{
 
         // If saved data exists and matches the current mal_id, use it
         if (savedData && this.mal_id === mal_id) {
-          if (!Array.isArray(savedData) || savedData.length === 0) {
+          if (!Array.isArray(savedData) && savedData.length === 0) {
             console.warn('Invalid or empty saved data. Clearing localStorage.');
             localStorage.removeItem('watchNowVideoData');
             this.watchNowVideoData = [];
@@ -67,7 +67,7 @@ export const useMyWatchNowStore = defineStore('myWatchNowStore',{
         });
         console.log('Fetched data:', data);
         if (!data || error) {
-          throw new Error(`Invalid data received from API ${error ? error : ''}`);
+          throw new Error(`Invalid data received from API ${error}`);
         }
 
         // Save the fetched data to localStorage and update the state

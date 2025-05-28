@@ -19,6 +19,19 @@ export const useJikenStore = defineStore('jikenStore',{
         getSearchAnime: typeof window !== 'undefined' ? useStorage('getSearchAnime',[]) :[]
     }),
     actions: {
+        async reRetryFetchData(url, params = {}) {
+            const retryCount = 0
+            const maxRetries = 3; // Maximum number of retries
+            const retryDelay = 1000; // Delay between retries in milliseconds
+            try {
+                const data = await $fetch(url, { params });
+                return data;
+            } catch (error) {
+                console.error(`Error fetching data from ${url}:`, error);
+                throw error; // Re-throw the error for further handling if needed
+            }
+
+        },
         async GetTopAnime() {
             try {
                 const data = await $fetch('/api/Jikan/GetTopAnime')
@@ -157,25 +170,30 @@ export const useJikenStore = defineStore('jikenStore',{
                         if(!Array.isArray(storedData)) {
                             this.getAnimeGenres = null
                             localStorage.removeItem('getAnimeGenresData')
+                            console.log('clearing localstorage for getAnimeGenresData')
                         }
                     }   
                 } catch (error) {
                     this.getAnimeGenres = null
                     localStorage.removeItem('getAnimeGenresData')
+                    console.error('error parsing data in localstorage clearing localstorage for getAnimeGenresData')
                 }
                 if(!storedData) {
                     const { data, error }  = await $fetch('/api/Jikan/GetAnimeGenres')
-                    this.getAnimeGenresData = data.data
-                    localStorage.setItem("getAnimeGenresData",JSON.stringify(data)) 
+                    this.getAnimeGenresData = data
+                    localStorage.setItem("getAnimeGenresData", JSON.stringify(data)) 
+                    console.log('getAnimeGenresData: ', data)
                 }
                 else {
                     this.getAnimeGenresData = storedData
-                    localStorage.setItem("getAnimeGenresData",JSON.stringify(storedData)) 
+                    localStorage.setItem("getAnimeGenresData", JSON.stringify(storedData)) 
+                    console.log('getAnimeGenresData: ', storedData)
                 }
 
             } catch (error) {
                 this.getAnimeGenres = null
                 localStorage.removeItem('getAnimeGenresData')
+                console.error('error fetching anime genres data from store: ', error)
             }
         },
         async getAnimeRecommendations() {

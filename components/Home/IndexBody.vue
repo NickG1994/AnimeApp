@@ -1,31 +1,25 @@
 <template>
   <div id="main">
     <!-- hero section -->
-    <div v-if="!animeDataHeroCards 
-    || animeDataHeroCards.length == 0" 
-    class="skeleton w-full max-h-[550px] h-[550px] transition"
-    >
+    <div v-if="!animeDataHeroCards || animeDataHeroCards.length == 0" class="skeleton w-full max-h-[550px] h-[550px] transition bg-accent2">
     </div>
-    <div v-else class="relative">
+    <div v-else class="relative bg-dark text-background">
       <div class="carousel w-full max-h-[550px] h-[550px] transition relative">
       <div :id="`heroSlide${index + 1}`" v-for="(animeCards, index) in animeDataHeroCards" :key="index" class="carousel-item w-full">
-        <div
-          class="hero relative bg-cover overflow-hidden object-fill">
+        <div class="hero relative bg-cover overflow-hidden object-fill">
           <img class="absolute right-0 w-screen" :src="animeCards.images.jpg?.large_image_url ?? 'https://placehold.co/200x400'" />
-          <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent shadow-[inset_600px_0px_50px_rgba(0,0,0,1)]"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-dark via-transparent to-transparent shadow-[inset_600px_0px_50px_rgba(0,0,0,1)]"></div>
           <div class="hero-overlay bg-opacity-60"></div>
-          <div class="hero-content text-neutral-content justify-self-start ml-8">
+          <div class="hero-content text-background justify-self-start ml-8">
             <div class="max-w-md">
-              <h3>#{{ animeCards.rank }} SpotLight</h3>
-              <h1 class="mb-5 text-5xl font-bold">{{ animeCards?.title_english || 'error'}}</h1>
-              <!--<span class="flex gap-4 inline-block"><h4 class="media-type">{{ animeCards.type }}</h4><h4 class="episiode-length">{{animeCards.duration.split(' ')[0]}}m</h4><h4 class="premiered">{{ animeCards.aired.from}}</h4></span>-->
-              <p class="mt-5">
-                {{ animeCards.synopsis.substring(0,120)}}
-                ...
+              <h3 class="text-accent1 font-bold">#{{ animeCards?.rank || 0 }} SpotLight</h3>
+              <h1 class="mb-5 text-5xl font-bold text-primary">{{ animeCards?.title_english || 'error' }}</h1>
+              <p class="mt-5 text-secondary">
+                {{ animeCards.synopsis.substring(0, 120) }}...
               </p>
               <div class="flex gap-3 mt-5">
-                <button class="btn btn-primary round" @click="watchNowRoute(animeCards.mal_id)">Watch now</button>
-                <button class="btn btn-primary" @click="watchRoute(animeCards.mal_id, animeCards.title_english, animeCards)">Details ></button>
+                <button class="btn bg-primary text-background hover:bg-hover" @click="watchNowRoute(animeCards.mal_id)">Watch now</button>
+                <button class="btn bg-secondary text-background hover:bg-hover" @click="watchRoute(animeCards.mal_id, animeCards.title_english, animeCards)">Details ></button>
               </div>
             </div>
           </div>
@@ -34,140 +28,131 @@
     </div>
       <!-- button -->
       <div class="absolute right-5 lg:top-1/2 bottom-[10%] flex flex-col gap-4">
-        <button class="btn btn-circle" @click="prev('heroSlide', animeDataHeroCards.length)">❮</button>
-        <button class="btn btn-circle" @click="next('heroSlide',animeDataHeroCards.length)">❯</button>
+        <button class="btn btn-circle bg-primary text-background hover:bg-hover" @click="prev('heroSlide', animeDataHeroCards.length)">❮</button>
+        <button class="btn btn-circle bg-primary text-background hover:bg-hover" @click="next('heroSlide', animeDataHeroCards.length)">❯</button>
       </div>
     </div>
 
     <!-- Trending Cards -->
-    <div  class="p-4 mb-4"> 
-      <h3 class="title text-2xl text-bold mb-4 font-bold">Trending</h3>
+    <div class="p-4 mb-4 bg-dark text-background">
+      <h3 class="title text-2xl font-bold mb-4 text-primary">Trending</h3>
       <div class="flex justify-between gap-4 p-6">
-        <!-- courasel -->
-      <div class="carousel w-full flex justify-around">
-        <div v-if="!animeDataChunk || animeDataChunk.length === 0" class="flex justify-between gap-6 flex-shrink-1 m-4 p-6">
-          <div v-for="(skeleton, index) in chunkSize" :key="index" class="flex w-52 flex-col gap-4">
-            <div class="skeleton h-32 w-full"></div>
-            <div class="skeleton h-4 w-28"></div>
-            <div class="skeleton h-4 w-full"></div>
-            <div class="skeleton h-4 w-full"></div>
+        <div class="carousel w-full flex justify-around">
+          <div v-if="!animeDataChunk || animeDataChunk.length === 0" class="flex justify-between gap-6 flex-shrink-1 m-4 p-6">
+            <div v-for="(skeleton, index) in chunkSize" :key="index" class="flex w-52 flex-col gap-4">
+              <div class="skeleton h-32 w-full bg-accent2"></div>
+              <div class="skeleton h-4 w-28 bg-accent1"></div>
+              <div class="skeleton h-4 w-full bg-accent1"></div>
+              <div class="skeleton h-4 w-full bg-accent1"></div>
+            </div>
           </div>
-        </div>
-        <div 
-          v-else
-          :id="`trendingCard${animeDataChunkIndex + 1}`" 
-          v-for="(slides, animeDataChunkIndex) in animeDataChunk" 
-          :key="animeDataChunkIndex"
-          class="carousel-item min-w-full justify-around" 
-          >
-
+          <div v-else :id="`trendingCard${animeDataChunkIndex + 1}`" v-for="(slides, animeDataChunkIndex) in animeDataChunk" :key="animeDataChunkIndex" class="carousel-item min-w-full justify-around">
             <button 
               v-for="(slide, index) in slides" 
-              :key="slide.mal_id"
+              :key="slide.mal_id" 
               class="card card-side flex justify-between w-auto bg-base-100 shadow-xl hover:scale-125 transition" 
               @click="watchRoute(slide.mal_id, slide.title, slide)"
             >
-
               <figure class="basis-[90%] flex-shrink-0 flex items-center justify-center">
                 <img :src="slide.images.jpg.image_url" alt="" class="w-auto h-64 object-contain">
               </figure>
-
-              <div class="card-body basis-[10%] flex items-center justify-center p-0 flex-shrink relative">
-                <p class="whitespace-nowrap rotate-[-90deg] text-lg font-bold leading-none absolute mt-auto text-white">{{ slide.title.length <= 10 ? slide.title : slide.title.substring(0,20) + ' ...'}}</p>
-                <h5 class="absolute bottom-0 font-bold text-lg text-yellow-600">0{{ (index + 1) }}</h5>
+              <div class="card-body basis-[10%] flex items-center justify-center p-0 flex-shrink relative bg-base-100">
+                <p class="whitespace-nowrap rotate-[-90deg] text-lg font-bold leading-none absolute mt-auto text-primary">
+                  {{ slide.title.length <= 10 ? slide.title : slide.title.substring(0, 20) + ' ...' }}
+                </p>
+                <h5 class="absolute bottom-0 font-bold text-lg text-accent1">0{{ (index + 1) }}</h5>
               </div>
-              
-            </button> 
-
-        </div>
-      </div>
-        <!-- buttons -->
-        <div class="flex flex-col gap-4 justify-center">
-          <button class="btn flex-1" @click="prev('trendingCard', animeDataChunk.length)">❮</button>
-          <button class="btn flex-1" @click="next('trendingCard', animeDataChunk.length)">❯</button>
-        </div>
-      </div>
-
-      <!-- share site section links/buttons -->
-      <div class="m-4 mt-24 flex flex-col md:flex-row md:items-center gap-8">
-        <div class="flex items-center gap-4">
-          <!-- Share Site Image -->
-          <img
-            class="w-16 h-16 sm:w-auto rounded-full object-cover mx-auto md:mx-0"
-            src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTJydzE1ZWE2YmpqZTVuYXN3czltbHV0aHZ0d2g2d2J0MWU3ZzBleSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ayMW3eqvuP00o/giphy.gif"
-            alt="Share Site"
-          />
-
-          <!-- Share Site Text -->
-          <div class="text-center md:text-left">
-            <span class="text-yellow-500 text-lg font-bold">Share Site</span>
-            <p class="text-gray-500">To Your Friends</p>
+            </button>
           </div>
         </div>
-
-
-        <!-- Share Buttons -->
-        <div class="flex flex-wrap justify-center md:justify-start gap-4">
-          <button class="btn btn-wide w-32 h-auto rounded-full flex items-center gap-2">
-            <img class="w-5" src="../../public/arrow-share.svg" alt="Share Icon" />
-            <span>Share</span>
-          </button>
-          <button class="btn btn-wide w-16 h-auto rounded-full bg-black-500 flex items-center justify-center">
-            <img class="w-5" src="../../public/x-icon.svg" alt="Close Icon" />
-          </button>
-          <button class="btn btn-wide w-16 h-auto rounded-full bg-blue-500 flex items-center justify-center">
-            <img class="w-5" src="../../public/facebook-icon.svg" alt="Facebook Icon" />
-          </button>
-          <button class="btn btn-wide w-16 h-auto rounded-full bg-orange-500 flex items-center justify-center">
-            <img class="w-5" src="../../public/reddit-icon.svg" alt="Reddit Icon" />
-          </button>
-          <button class="btn btn-wide w-16 h-auto rounded-full flex items-center justify-center">
-            <img class="w-5" src="../../public/arrow-share.svg" alt="Share Icon" />
-          </button>
+        <div class="flex flex-col gap-4 justify-center">
+          <button class="btn flex-1 bg-primary text-background hover:bg-hover" @click="prev('trendingCard', animeDataChunk.length)">❮</button>
+          <button class="btn flex-1 bg-primary text-background hover:bg-hover" @click="next('trendingCard', animeDataChunk.length)">❯</button>
         </div>
+      </div>
+    </div>
+
+    <!-- share site section links/buttons -->
+    <div class="m-4 mt-24 flex flex-col md:flex-row md:items-center gap-8">
+      <div class="flex items-center gap-4">
+        <!-- Share Site Image -->
+        <img
+          class="w-16 h-16 sm:w-auto rounded-full object-cover mx-auto md:mx-0"
+          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTJydzE1ZWE2YmpqZTVuYXN3czltbHV0aHZ0d2g2d2J0MWU3ZzBleSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ayMW3eqvuP00o/giphy.gif"
+          alt="Share Site"
+        />
+
+        <!-- Share Site Text -->
+        <div class="text-center md:text-left">
+          <span class="text-yellow-500 text-lg font-bold">Share Site</span>
+          <p class="text-gray-500">To Your Friends</p>
+        </div>
+      </div>
+
+
+      <!-- Share Buttons -->
+      <div class="flex flex-wrap justify-center md:justify-start gap-4">
+        <button class="btn btn-wide w-32 h-auto rounded-full flex items-center gap-2">
+          <img class="w-5" src="../../public/arrow-share.svg" alt="Share Icon" />
+          <span>Share</span>
+        </button>
+        <button class="btn btn-wide w-16 h-auto rounded-full bg-black-500 flex items-center justify-center">
+          <img class="w-5" src="../../public/x-icon.svg" alt="Close Icon" />
+        </button>
+        <button class="btn btn-wide w-16 h-auto rounded-full bg-blue-500 flex items-center justify-center">
+          <img class="w-5" src="../../public/facebook-icon.svg" alt="Facebook Icon" />
+        </button>
+        <button class="btn btn-wide w-16 h-auto rounded-full bg-orange-500 flex items-center justify-center">
+          <img class="w-5" src="../../public/reddit-icon.svg" alt="Reddit Icon" />
+        </button>
+        <button class="btn btn-wide w-16 h-auto rounded-full flex items-center justify-center">
+          <img class="w-5" src="../../public/arrow-share.svg" alt="Share Icon" />
+        </button>
       </div>
     </div>
 
     <!-- Comments/Reviews -->
     <div  class="overflow-hidden bg-gray-900 p-4">
       <div class="flex justify-between mb-12">
-        <h3 class="title text-2xl text-bold">Recent Reviews</h3>
-        <button class="btn">See more ></button>
+        <h3 class="title text-2xl font-bold text-accent1">Recent Reviews</h3>
+        <button class="btn bg-accent2 text-dark hover:bg-primary">See more ></button>
       </div>
 
-    <div class="flex justify-between gap-4 p-6">
-      <div class="carousel flex gap-4">
-        <div 
-          :id="`reviewCard${(index + 1)}`" 
-          ref="courselCard" 
-          class="flex gap-4 w-[100%] justify-around" 
-          v-for="(cards, index) in animeDataChunkReview" :key="index">
-            <div class="card bg-base-100 shadow-xl w-[100vw]" v-for="(slide, reviewIndex) in cards" :key="slide.mal_id">
-              <div v-if="animeDataChunkReview?.length <= 0" class="flex w-52 flex-col gap-4">
-                <div class="skeleton h-32 w-full"></div>
-                <div class="skeleton h-4 w-28"></div>
-                <div class="skeleton h-4 w-full"></div>
-                <div class="skeleton h-4 w-full"></div>
-              </div>
-              <div v-else class="carousel-item flex flex-col">
-                <figure class="flex items-center">
-                  <img class="w-16 h-16 rounded-full mr-6" 
-                  :src="slide.user.images.webp?.image_url? 
-                  slide.user.images.webp?.image_url 
-                  : 'https://placehold.co/600x400'" />
-                  <div class="container">{{ slide.user?.username  }}</div>
-                </figure>
-                <div class="card-body">
-                  {{ slide?.review <= 150 ? slide?.review : slide.review?.substring(0,150) }}
+      <div class="flex justify-between gap-4 p-6">
+        <div v-if="animeDataChunkReview" class="carousel flex gap-4">
+          <div 
+            :id="`reviewCard${(index + 1)}`" 
+            ref="courselCard" 
+            class="flex gap-4 w-[100%] justify-around" 
+            v-for="(cards, index) in animeDataChunkReview" :key="index">
+              <div class="card bg-dark text-background shadow-xl w-[100vw]" v-for="(slide, reviewIndex) in cards" :key="slide.mal_id">
+                <div v-if="animeDataChunkReview?.length <= 0" class="flex w-52 flex-col gap-4">
+                  <div class="skeleton h-32 w-full bg-accent2"></div>
+                  <div class="skeleton h-4 w-28 bg-accent1"></div>
+                  <div class="skeleton h-4 w-full bg-accent1"></div>
+                  <div class="skeleton h-4 w-full bg-accent1"></div>
+                </div>
+                <div v-else class="carousel-item flex flex-col">
+                  <figure class="flex items-center">
+                    <img class="w-16 h-16 rounded-full mr-6 border-2 border-accent2" 
+                    :src="slide.user.images.webp?.image_url? 
+                    slide.user.images.webp?.image_url 
+                    : 'https://placehold.co/600x400'" />
+                    <div class="container text-accent1">{{ slide.user?.username  }}</div>
+                  </figure>
+                  <div class="card-body">
+                    <p class="text-secondary">
+                      {{ slide?.review <= 150 ? slide?.review : slide.review?.substring(0,150) }}
+                    </p>
+                  </div>
                 </div>
               </div>
-              </div>
-            </div>
-      </div>
-      <div class="flex flex-col gap-4 justify-center basis-[5%]">
-        <button class="btn flex-1" @click="prev('reviewCard', animeDataChunkReview.length)">❮</button>
-        <button class="btn flex-1" @click="next('reviewCard', animeDataChunkReview.length)">❯</button>
-      </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4 justify-center basis-[5%]">
+        <button class="btn flex-1 bg-primary text-background hover:bg-hover" @click="prev('reviewCard', animeDataChunkReview.length)">❮</button>
+        <button class="btn flex-1 bg-primary text-background hover:bg-hover" @click="next('reviewCard', animeDataChunkReview.length)">❯</button>
+        </div>
       </div>
     </div>
 
@@ -285,30 +270,30 @@
         <div>
 
           <div class="flex justify-between">
-            <h3 class="title text-2xl text-bold">Recent Episodes</h3>
-            <button class="btn">See more ></button>
+            <h3 class="title text-2xl font-bold text-primary">Recent Episodes</h3>
+            <button class="btn bg-secondary text-background hover:bg-hover">See more ></button>
           </div>
           <div v-if="refRecentEpisodesLoading" class="flex flex-wrap gap-4 justify-around p-4">
             <div class="card bg-base-100 shadow-xl basis-[calc(100%/7)]" v-for="(getRecentAnime, index) in getRecentWatchAnimeData" :key="getRecentAnime.entry.mal_id">
-              <figure class="h-[100%]"><div class="skeleton h-32 w-full"></div></figure>
+              <figure class="h-[100%]"><div class="skeleton h-32 w-full bg-accent2"></div></figure>
               <div class="card-body p-5">
-                <div class="skeleton h-4 w-16"></div>
+                <div class="skeleton h-4 w-16 bg-accent1"></div>
                 <div class="subMeta flex items-center">
-                  <div class="skeleton h-4 w-full"></div>
+                  <div class="skeleton h-4 w-full bg-accent1"></div>
                 </div>
-                <div class="skeleton h-4 w-full"></div>
+                <div class="skeleton h-4 w-full bg-accent1"></div>
               </div>
             </div>
           </div>
           <div v-else class="flex flex-wrap gap-4 justify-around p-4">
             <div class="card bg-base-100 shadow-xl basis-[calc(100%/7)]" v-for="(getRecentAnime, index) in getRecentWatchAnimeData" :key="getRecentAnime.entry.mal_id">
-              <figure class="h-[100%]"><img class="h-[100%]" :src="getRecentAnime.entry.images.webp.image_url"/></figure>
+              <figure class="h-[100%]"><img class="h-[100%]" :src="getRecentAnime.entry.images.webp.image_url" /></figure>
               <div class="card-body p-5">
-                <h3 class="title">{{ getRecentAnime.entry.title.length >= 12 ? getRecentAnime.entry.title.substring(0,12) : getRecentAnime.entry.title}} ...</h3>
+                <h3 class="title text-primary">{{ getRecentAnime.entry.title.length >= 12 ? getRecentAnime.entry.title.substring(0, 12) : getRecentAnime.entry.title }} ...</h3>
                 <div class="subMeta flex items-center">
-                  <span class="text-xs">{{ getRecentAnime.region_locked === true? "Region Locked" : "Region Unlocked"}}</span>
+                  <span class="text-xs text-secondary">{{ getRecentAnime.region_locked === true ? "Region Locked" : "Region Unlocked" }}</span>
                 </div>
-                <button @click="watchRoute(getRecentAnime.entry.mal_id, getRecentAnime.entry.title, getRecentAnime)" class="btn button">Watch</button>
+                <button @click="watchRoute(getRecentAnime.entry.mal_id, getRecentAnime.entry.title, getRecentAnime)" class="btn bg-primary text-background hover:bg-hover">Watch</button>
               </div>
             </div>
           </div>
@@ -348,7 +333,7 @@
             </div>
             <!-- schedule table -->
             <table v-else class="flex flex-col gap-4 justify-around">
-              <tr class="hover:bg-600-green hover:cursor-pointer item flex-nowrap flex gap-4 even:bg-gray-900 p-2" v-for="(ScheduleData,index) in getScheduleData" :key="ScheduleData.mal_id">
+              <tr class="hover:bg-600-green hover:cursor-pointer item flex-nowrap flex gap-4 even:bg-black-900 p-2" v-for="(ScheduleData,index) in getScheduleData" :key="ScheduleData.mal_id">
                 <td id="schedule-flex-left">
                   {{ ScheduleData.broadcast.string }}
                 </td>
@@ -485,16 +470,19 @@ const animeDataChunkUpdate = () => {
   chunkSize.value = width.value >= 1300 ? 5 : width.value >= 768 ? 2 : 1;
 };
 
-const watchRoute = async (id: number, title: string, getRecentAnime: any) => {
-      console.log('id: ', id, 'title:', title, 'getRecentAnime:', getRecentAnime);
+const watchRoute = async (id: string, title: string, getRecentAnime: any) => {
+
+  console.log('id: ', id, 'title:', title, 'getRecentAnime:', getRecentAnime);
   try {
+    if (import.meta.client) {
     selectedWatch.value = getRecentAnime;
 
     // Set the anime ID in the store
     WatchStore.getAnime_id(id);
 
     // Fetch the anime data before navigating
-    await WatchStore.fetchGetAnimeById();
+    await WatchStore.fetchGetAnimeById();      
+    }
 
     // Navigate to the anime details page with params
     navigateTo({
