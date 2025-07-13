@@ -41,8 +41,6 @@ export const useMyWatchNowStore = defineStore('myWatchNowStore',{
       try {
         if (!import.meta.client) return; // Ensure this runs only on the client
 
-        console.log('Current mal_id:', this.mal_id, 'Provided mal_id:', mal_id);
-
         // Check if data exists in localStorage
         const savedData = JSON.parse(localStorage.getItem('watchNowVideoData') || 'null');
 
@@ -61,11 +59,9 @@ export const useMyWatchNowStore = defineStore('myWatchNowStore',{
         }
 
         // If no valid saved data, fetch fresh data from the API
-        console.log('Fetching fresh watchNowVideoData for mal_id:', mal_id);
         const {data, error} = await $fetch('/api/Jikan/getAnimeVideos', {
           query: { mal_id: mal_id },
         });
-        console.log('Fetched data:', data);
         if (!data || error) {
           throw new Error(`Invalid data received from API ${error}`);
         }
@@ -73,8 +69,7 @@ export const useMyWatchNowStore = defineStore('myWatchNowStore',{
         // Save the fetched data to localStorage and update the state
         this.watchNowVideoData = data;
         this.setMalId(mal_id); // Update mal_id
-        localStorage.setItem('watchNowVideoData', JSON.stringify(data));
-        console.log('Fetched and saved watchNowVideoData:', data);
+        localStorage.setItem('watchNowVideoData', JSON.stringify(data)); 
       } catch (error) {
         // Handle errors and clear invalid data
         console.error('Error fetching watchNowVideoData:', error);
@@ -84,7 +79,6 @@ export const useMyWatchNowStore = defineStore('myWatchNowStore',{
      },
     setMalId(mal_id: string) {  
       this.mal_id = mal_id;
-      console.log('Setting mal_id:', mal_id);
       if (import.meta.client) {
         localStorage.setItem('mal_id', JSON.stringify(mal_id));
       }

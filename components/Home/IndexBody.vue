@@ -37,8 +37,8 @@
     <div class="p-4 mb-4 bg-dark text-background">
       <h3 class="title text-2xl font-bold mb-4 text-primary">Trending</h3>
       <div class="flex justify-between gap-4 p-6">
-        <div class="carousel w-full flex justify-around">
-          <div v-if="!animeDataChunk || animeDataChunk.length === 0" class="flex justify-between gap-6 flex-shrink-1 m-4 p-6">
+        <div class="carousel w-full flex justify-around pt-8 pb-8">
+          <div v-if="!animeDataChunk || animeDataChunk.length === 0" class="flex justify-between gap-6 flex-shrink-1 m-4 p-8">
             <div v-for="(skeleton, index) in chunkSize" :key="index" class="flex w-52 flex-col gap-4">
               <div class="skeleton h-32 w-full bg-accent2"></div>
               <div class="skeleton h-4 w-28 bg-accent1"></div>
@@ -46,7 +46,8 @@
               <div class="skeleton h-4 w-full bg-accent1"></div>
             </div>
           </div>
-          <div v-else :id="`trendingCard${animeDataChunkIndex + 1}`" v-for="(slides, animeDataChunkIndex) in animeDataChunk" :key="animeDataChunkIndex" class="carousel-item min-w-full justify-around">
+          <div v-else :id="`trendingCard${animeDataChunkIndex + 1}`" v-for="(slides, animeDataChunkIndex) in animeDataChunk" :key="animeDataChunkIndex" 
+          class="carousel-item min-w-full justify-around">                      
             <button 
               v-for="(slide, index) in slides" 
               :key="slide.mal_id" 
@@ -54,7 +55,7 @@
               @click="watchRoute(slide.mal_id, slide.title, slide)"
             >
               <figure class="basis-[90%] flex-shrink-0 flex items-center justify-center">
-                <img :src="slide.images.jpg.image_url" alt="" class="w-auto h-64 object-contain">
+                <img :src="slide.images.jpg.image_url" alt="" class="w-auto h-64 ">
               </figure>
               <div class="card-body basis-[10%] flex items-center justify-center p-0 flex-shrink relative bg-base-100">
                 <p class="whitespace-nowrap rotate-[-90deg] text-lg font-bold leading-none absolute mt-auto text-primary">
@@ -73,7 +74,7 @@
     </div>
 
     <!-- share site section links/buttons -->
-    <div class="m-4 mt-24 flex flex-col md:flex-row md:items-center gap-8">
+    <div class="m-6 mt-24 flex flex-col md:flex-row md:items-center gap-8">
       <div class="flex items-center gap-4">
         <!-- Share Site Image -->
         <img
@@ -497,7 +498,7 @@ const watchRoute = async (id: string, title: string, getRecentAnime: any) => {
 const watchNowRoute = async (id: number) => {
   try {
     // Fetch the anime data before navigating
-    await WatchStore.fetchGetAnimeById();
+    //await WatchStore.fetchGetAnimeById();
 
     // Navigate to the anime details page with params
     navigateTo({

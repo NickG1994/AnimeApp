@@ -1,6 +1,8 @@
 <template>
   <div id="main" class="p-4 md:p-8 lg:p-12">
-    <div v-if="loading" class="text-center text-lg font-bold">Loading...</div>
+    <div v-if="loading" class="text-center text-lg font-bold h-screen flex items-center justify-center">
+      <span class="loading loading-spinner text-primary"></span>
+    </div>
     <div v-else>
       <!-- Main Container -->
       <div class="flex flex-col lg:flex-row gap-6">

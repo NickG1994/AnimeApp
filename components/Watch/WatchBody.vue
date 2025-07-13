@@ -41,7 +41,7 @@
 
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
-import { useMyWatchNowStore } from '~/store/watchNow.ts';
+import { useMyWatchNowStore } from '~/store/watchNow';
 const useWatchStore = useMyWatchNowStore()
 
 const {watchNowVideoData} = storeToRefs(useWatchStore);
@@ -49,7 +49,6 @@ const {fetchWatchNowAnime, fetchWatchNowVideoData}  = useWatchStore;
 
 onMounted(() => {
   const { watch_now } = useRoute().params; // Use the correct parameter name
-  //console.log('Watch Now Parameter:', watch_now);
   try {
     fetchWatchNowAnime(watch_now);
   } catch (error) {
@@ -60,7 +59,6 @@ onMounted(() => {
   } catch (error) {
     console.error('Error fetching video data:', error);
   }
-  //console.log('Watch Now: ', selectWatchNow); 
 });
 </script>
 

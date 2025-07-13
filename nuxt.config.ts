@@ -8,5 +8,8 @@ export default defineNuxtConfig({
       baseURL:'https://api.jikan.moe/v4/'
     }
   },
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' }
+  },
   modules: ['@nuxtjs/tailwindcss','@pinia/nuxt','@vueuse/nuxt']
 })
